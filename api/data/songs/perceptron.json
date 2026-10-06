@@ -3,18 +3,18 @@
   "lines": [
     { "text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs" },
     { "text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights" },
-    { "text": "Multiply each, then add", "beats": 4, "scene": "sum_node", "fact_id": "weighted_sum" },
+    { "text": "Multiply their parts and sum them", "beats": 4, "scene": "sum_node", "fact_id": "weighted_sum" },
     { "text": "Bias joins the total", "beats": 4, "scene": "sum_node", "fact_id": "bias" },
-    { "text": "The threshold checks the sum", "beats": 4, "scene": "gate_fire", "fact_id": "threshold_step" },
-    { "text": "It clicks to one or zero", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
-    { "text": "Compare what you predicted", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
-    { "text": "Then tune the weights again", "beats": 4, "scene": "weight_update", "fact_id": "learning_rule" }
+    { "text": "Compare the sum to threshold one", "beats": 4, "scene": "gate_fire", "fact_id": "threshold_step" },
+    { "text": "It fires when the sum reaches one", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
+    { "text": "Predict: does the updated gate fire?", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
+    { "text": "Then tune weights to fix the miss", "beats": 4, "scene": "weight_update", "fact_id": "learning_rule" }
   ],
   "predict": {
-    "after_line": 6,
-    "question": "Inputs 2 and 1 have weights 0.5 and 1, with bias 0. If the threshold is 2, what is the output?",
-    "options": ["1, because 2 is reached", "0, because the sum is 1", "1, because the sum is 3", "0, because there are two inputs"],
-    "correct": 0,
-    "explain": "The weighted sum is 2 × 0.5 + 1 × 1 = 2, so it reaches the threshold."
+    "after_line": 7,
+    "question": "After the weight update, will the gate fire?",
+    "options": ["Fire", "Don't fire", "Can't tell", "Depends on x2"],
+    "correct": 1,
+    "explain": "New sum is 0.5, below the threshold of 1."
   }
 }

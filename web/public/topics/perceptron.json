@@ -8,55 +8,73 @@
     {
       "text": "Three little signals start the show",
       "start": 0,
-      "end": 3
+      "end": 2.5
     },
     {
       "text": "Each gets a weight before they go",
-      "start": 3,
-      "end": 6
+      "start": 2.5,
+      "end": 5
     },
     {
-      "text": "Add them up, then check the gate",
-      "start": 7,
+      "text": "Multiply, then add their parts",
+      "start": 5,
+      "end": 7.5
+    },
+    {
+      "text": "Compare the sum to threshold one",
+      "start": 7.5,
       "end": 10
     },
     {
-      "text": "A threshold says if we activate",
+      "text": "Learning shifts weights after a miss",
       "start": 10,
-      "end": 13
+      "end": 12.5
     }
   ],
   "scenes": [
     {
       "template": "inputs_bounce",
       "start": 0,
-      "end": 8,
-      "params": {
-        "radius": 86,
-        "colors": ["#ff7f73", "#ffd56b", "#7cd9ba"]
-      }
+      "end": 2.5,
+      "params": {}
     },
     {
-      "template": "inputs_bounce",
-      "start": 7,
-      "end": 15,
-      "params": {
-        "radius": 104,
-        "colors": ["#ff9e76", "#fff08a", "#85e2d1"]
-      }
+      "template": "weights_light",
+      "start": 2.5,
+      "end": 5,
+      "params": {}
+    },
+    {
+      "template": "sum_node",
+      "start": 5,
+      "end": 7.5,
+      "params": {}
+    },
+    {
+      "template": "gate_fire",
+      "start": 7.5,
+      "end": 10,
+      "params": {}
+    },
+    {
+      "template": "weight_update",
+      "start": 10,
+      "end": 12.5,
+      "params": {}
     }
   ],
   "pauses": [
     {
-      "at": 6,
-      "question": "If the second input doubles while everything else stays the same, what happens to its weighted contribution?",
+      "at": 10,
+      "question": "After the weight update, will the gate fire?",
       "options": [
-        "It doubles if its weight stays fixed",
-        "It becomes zero",
-        "The other inputs double too"
+        "Fire",
+        "Don't fire",
+        "Can't tell",
+        "Depends on x2"
       ],
-      "correct": 0,
-      "explain": "An input's contribution is its value multiplied by its own weight."
+      "correct": 1,
+      "explain": "New sum is 0.5, below the threshold of 1."
     }
   ]
 }
