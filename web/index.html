@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10131d" />
+    <title>learn-by-song</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Tiny lessons, big ideas</p>
+          <h1>learn-by-song</h1>
+        </div>
+        <label class="topic-picker-label" for="topic-picker">
+          Topic
+          <select id="topic-picker" aria-label="Choose a topic"></select>
+        </label>
+      </header>
+      <p id="topic-status" class="topic-status" role="status">Loading topics…</p>
+      <section class="player" aria-label="Lesson player">
+        <div class="canvas-wrap">
+          <canvas id="lesson-canvas" width="1920" height="1080" aria-label="Animated lesson scene"></canvas>
+          <section id="pause-card" class="pause-card" aria-live="polite" hidden>
+            <h2 id="pause-question"></h2>
+            <div id="pause-options" class="pause-options"></div>
+            <p id="pause-feedback" class="pause-feedback" aria-live="assertive"></p>
+          </section>
+        </div>
+        <div class="lyric-line" aria-live="polite">
+          <span id="lyric-base" class="lyric-base"></span>
+          <span id="lyric-wipe" class="lyric-wipe"></span>
+        </div>
+        <div class="scrubber-row">
+          <time id="current-time">0:00</time>
+          <input id="scrubber" type="range" min="0" max="1" step="0.01" value="0" aria-label="Seek lesson" />
+          <time id="duration">0:00</time>
+        </div>
+        <div class="controls" aria-label="Playback controls">
+          <button id="previous-scene" type="button" aria-label="Previous scene">[</button>
+          <button id="play-toggle" class="play-button" type="button">Play</button>
+          <button id="next-scene" type="button" aria-label="Next scene">]</button>
+          <button id="loop-toggle" type="button" aria-pressed="false">Loop scene (L)</button>
+          <span class="keyboard-hint">Space play/pause · ←/→ seek</span>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

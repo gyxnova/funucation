@@ -1,0 +1,272 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  color: #f4f3ed;
+  background: #10131d;
+  font-family: "DM Sans", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(66, 83, 133, 0.22), transparent 55%),
+    #10131d;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.topbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #9aabd9;
+  font: 500 11px "DM Mono", monospace;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 38px);
+  letter-spacing: -0.045em;
+}
+
+.topic-picker-label {
+  display: grid;
+  gap: 6px;
+  color: #a6a9b7;
+  font-size: 12px;
+}
+
+.topic-picker-label select {
+  min-width: 190px;
+  border: 1px solid #35394b;
+  border-radius: 9px;
+  padding: 10px 34px 10px 12px;
+  color: #f4f3ed;
+  background: #1a1e2a;
+}
+
+.topic-picker-label select:disabled {
+  opacity: 0.7;
+}
+
+.topic-status {
+  min-height: 20px;
+  margin: 0 0 10px;
+  color: #a6a9b7;
+  font-size: 13px;
+}
+
+.player {
+  overflow: hidden;
+  border: 1px solid #292d3a;
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(25, 28, 39, 0.88);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.canvas-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  background: #151925;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pause-card {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 22px;
+  background: rgba(18, 21, 32, 0.96);
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+}
+
+.pause-card h2 {
+  margin: 0 0 16px;
+  font-size: clamp(18px, 3vw, 24px);
+  line-height: 1.3;
+}
+
+.pause-options {
+  display: grid;
+  gap: 8px;
+}
+
+.pause-options button {
+  border: 1px solid #3d4356;
+  border-radius: 9px;
+  padding: 10px 12px;
+  color: #f4f3ed;
+  text-align: left;
+  background: #222737;
+  cursor: pointer;
+}
+
+.pause-options button:hover:not(:disabled) {
+  border-color: #96a9fa;
+  background: #2c344a;
+}
+
+.pause-options button:disabled {
+  cursor: default;
+}
+
+.pause-feedback {
+  min-height: 0;
+  margin: 0;
+  color: #b7c3fa;
+  line-height: 1.5;
+}
+
+.pause-feedback:not(:empty) {
+  margin-top: 14px;
+}
+
+.lyric-line {
+  position: relative;
+  min-height: 54px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 12px 4px 4px;
+  font-size: clamp(17px, 2.6vw, 23px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.lyric-base,
+.lyric-wipe {
+  grid-area: 1 / 1;
+}
+
+.lyric-base {
+  color: #666b7c;
+}
+
+.lyric-wipe {
+  width: 100%;
+  color: #f4f3ed;
+  clip-path: inset(0 100% 0 0);
+}
+
+.scrubber-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 12px;
+  color: #9296a5;
+  font: 12px "DM Mono", monospace;
+}
+
+.scrubber-row time:last-child {
+  text-align: right;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #a5b2ff;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.controls button {
+  min-height: 38px;
+  border: 1px solid #3c4151;
+  border-radius: 9px;
+  padding: 0 13px;
+  color: #e9e8e1;
+  background: #222633;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  border-color: #7785c7;
+}
+
+.controls .play-button {
+  min-width: 84px;
+  border-color: #a5b2ff;
+  color: #111522;
+  background: #a5b2ff;
+  font-weight: 700;
+}
+
+.keyboard-hint {
+  margin-left: 8px;
+  color: #777c8b;
+  font-size: 12px;
+}
+
+@media (max-width: 620px) {
+  .app-shell {
+    width: min(100% - 24px, 1120px);
+    padding-top: 24px;
+  }
+
+  .topbar {
+    align-items: start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .topic-picker-label,
+  .topic-picker-label select {
+    width: 100%;
+  }
+
+  .player {
+    padding: 9px;
+  }
+
+  .keyboard-hint {
+    width: 100%;
+    margin: 2px 0 0;
+    text-align: center;
+  }
+}

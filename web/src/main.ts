@@ -1,0 +1,101 @@
+import "./style.css";
+import { Player } from "./player";
+import type { Catalog, CatalogEntry, Topic } from "./types";
+
+const picker = document.querySelector<HTMLSelectElement>("#topic-picker");
+const status = document.querySelector<HTMLElement>("#topic-status");
+const playerElements = {
+  canvas: document.querySelector<HTMLCanvasElement>("#lesson-canvas"),
+  audio: new Audio(),
+  playButton: document.querySelector<HTMLButtonElement>("#play-toggle"),
+  scrubber: document.querySelector<HTMLInputElement>("#scrubber"),
+  currentTime: document.querySelector<HTMLElement>("#current-time"),
+  duration: document.querySelector<HTMLElement>("#duration"),
+  lyricBase: document.querySelector<HTMLElement>("#lyric-base"),
+  lyricWipe: document.querySelector<HTMLElement>("#lyric-wipe"),
+  pauseCard: document.querySelector<HTMLElement>("#pause-card"),
+  pauseQuestion: document.querySelector<HTMLElement>("#pause-question"),
+  pauseOptions: document.querySelector<HTMLElement>("#pause-options"),
+  pauseFeedback: document.querySelector<HTMLElement>("#pause-feedback"),
+  previousScene: document.querySelector<HTMLButtonElement>("#previous-scene"),
+  nextScene: document.querySelector<HTMLButtonElement>("#next-scene"),
+  loopToggle: document.querySelector<HTMLButtonElement>("#loop-toggle"),
+};
+
+function required<T>(element: T | null, selector: string): T {
+  if (!element) throw new Error(`Missing required page element: ${selector}`);
+  return element;
+}
+
+function resolvePlayerElements(): ConstructorParameters<typeof Player>[0] {
+  return {
+    canvas: required(playerElements.canvas, "#lesson-canvas"),
+    audio: playerElements.audio,
+    playButton: required(playerElements.playButton, "#play-toggle"),
+    scrubber: required(playerElements.scrubber, "#scrubber"),
+    currentTime: required(playerElements.currentTime, "#current-time"),
+    duration: required(playerElements.duration, "#duration"),
+    lyricBase: required(playerElements.lyricBase, "#lyric-base"),
+    lyricWipe: required(playerElements.lyricWipe, "#lyric-wipe"),
+    pauseCard: required(playerElements.pauseCard, "#pause-card"),
+    pauseQuestion: required(playerElements.pauseQuestion, "#pause-question"),
+    pauseOptions: required(playerElements.pauseOptions, "#pause-options"),
+    pauseFeedback: required(playerElements.pauseFeedback, "#pause-feedback"),
+    previousScene: required(playerElements.previousScene, "#previous-scene"),
+    nextScene: required(playerElements.nextScene, "#next-scene"),
+    loopToggle: required(playerElements.loopToggle, "#loop-toggle"),
+  };
+}
+
+function topicFile(entry: CatalogEntry): string {
+  return entry.file ?? `/topics/${entry.id}.json`;
+}
+
+async function loadTopic(entry: CatalogEntry): Promise<Topic> {
+  const response = await fetch(topicFile(entry));
+  if (!response.ok) throw new Error(`Could not load topic "${entry.id}" (${response.status})`);
+  return response.json() as Promise<Topic>;
+}
+
+async function start(): Promise<void> {
+  const topicPicker = required(picker, "#topic-picker");
+  const topicStatus = required(status, "#topic-status");
+  const catalogResponse = await fetch("/catalog.json");
+  if (!catalogResponse.ok) throw new Error(`Could not load topic catalog (${catalogResponse.status})`);
+  const catalog = await catalogResponse.json() as Catalog;
+  const readyTopics = catalog.topics.filter((topic) => topic.ready);
+
+  catalog.topics.forEach((topic) => {
+    const option = document.createElement("option");
+    option.value = topic.id;
+    option.textContent = topic.ready ? topic.title : `${topic.title} — coming soon`;
+    option.disabled = !topic.ready;
+    topicPicker.append(option);
+  });
+
+  let player: Player | null = null;
+  const chooseTopic = async (topicId: string): Promise<void> => {
+    const entry = readyTopics.find((topic) => topic.id === topicId);
+    if (!entry) return;
+    topicStatus.textContent = `Loading ${entry.title}…`;
+    try {
+      const topic = await loadTopic(entry);
+      player?.destroy();
+      player = new Player(resolvePlayerElements(), topic);
+      topicStatus.textContent = `${topic.field} · ${topic.title}`;
+    } catch (error) {
+      topicStatus.textContent = `Could not open topic: ${String(error)}`;
+    }
+  };
+
+  topicPicker.addEventListener("change", () => void chooseTopic(topicPicker.value));
+  const firstTopic = readyTopics[0];
+  if (!firstTopic) throw new Error("The topic catalog has no ready topics");
+  topicPicker.value = firstTopic.id;
+  await chooseTopic(firstTopic.id);
+}
+
+void start().catch((error: unknown) => {
+  const topicStatus = required(status, "#topic-status");
+  topicStatus.textContent = `Unable to start the lesson player: ${String(error)}`;
+});
