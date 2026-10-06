@@ -16,7 +16,6 @@ const generateButton = document.querySelector<HTMLButtonElement>("#generate-song
 const generatedMeta = document.querySelector<HTMLElement>("#generated-meta");
 const playerElements = {
   canvas: document.querySelector<HTMLCanvasElement>("#lesson-canvas"),
-  audio: new Audio(),
   playButton: document.querySelector<HTMLButtonElement>("#play-toggle"),
   scrubber: document.querySelector<HTMLInputElement>("#scrubber"),
   currentTime: document.querySelector<HTMLElement>("#current-time"),
@@ -30,6 +29,11 @@ const playerElements = {
   previousScene: document.querySelector<HTMLButtonElement>("#previous-scene"),
   nextScene: document.querySelector<HTMLButtonElement>("#next-scene"),
   loopToggle: document.querySelector<HTMLButtonElement>("#loop-toggle"),
+  volume: document.querySelector<HTMLInputElement>("#volume"),
+  muteToggle: document.querySelector<HTMLButtonElement>("#mute-toggle"),
+  voiceToggle: document.querySelector<HTMLButtonElement>("#voice-toggle"),
+  audioStatus: document.querySelector<HTMLElement>("#audio-status"),
+  voiceMessage: document.querySelector<HTMLElement>("#voice-message"),
 };
 
 function required<T>(element: T | null, selector: string): T {
@@ -40,7 +44,6 @@ function required<T>(element: T | null, selector: string): T {
 function resolvePlayerElements(): ConstructorParameters<typeof Player>[0] {
   return {
     canvas: required(playerElements.canvas, "#lesson-canvas"),
-    audio: playerElements.audio,
     playButton: required(playerElements.playButton, "#play-toggle"),
     scrubber: required(playerElements.scrubber, "#scrubber"),
     currentTime: required(playerElements.currentTime, "#current-time"),
@@ -54,6 +57,11 @@ function resolvePlayerElements(): ConstructorParameters<typeof Player>[0] {
     previousScene: required(playerElements.previousScene, "#previous-scene"),
     nextScene: required(playerElements.nextScene, "#next-scene"),
     loopToggle: required(playerElements.loopToggle, "#loop-toggle"),
+    volume: required(playerElements.volume, "#volume"),
+    muteToggle: required(playerElements.muteToggle, "#mute-toggle"),
+    voiceToggle: required(playerElements.voiceToggle, "#voice-toggle"),
+    audioStatus: required(playerElements.audioStatus, "#audio-status"),
+    voiceMessage: required(playerElements.voiceMessage, "#voice-message"),
   };
 }
 
@@ -96,7 +104,7 @@ async function start(): Promise<void> {
 
   let player: Player | null = null;
   let selectedEntry: CatalogEntry | null = null;
-  const chooseTopic = async (topicId: string, initialTime = 0, autoPlay = false): Promise<void> => {
+  const chooseTopic = async (topicId: string, initialTime = 0): Promise<void> => {
     const entry = readyTopics.find((topic) => topic.id === topicId);
     if (!entry) return;
     selectedEntry = entry;
@@ -105,7 +113,7 @@ async function start(): Promise<void> {
     try {
       const topic = await loadTopic(entry);
       player?.destroy();
-      player = new Player(resolvePlayerElements(), topic, initialTime, autoPlay);
+      player = new Player(resolvePlayerElements(), topic, initialTime);
       topicStatus.textContent = `${topic.field} · ${topic.title}`;
     } catch (error) {
       topicStatus.textContent = `Could not open topic: ${String(error)}`;
@@ -174,8 +182,7 @@ async function start(): Promise<void> {
     : firstTopic;
   if (!selectedTopic) throw new Error(`Unknown or unavailable topic: ${requestedTopicId}`);
   topicPicker.value = selectedTopic.id;
-  const autoPlay = query.has("paused") && query.get("paused") !== "1";
-  await chooseTopic(selectedTopic.id, requestedTime, autoPlay);
+  await chooseTopic(selectedTopic.id, requestedTime);
   window.__ready = true;
 }
 

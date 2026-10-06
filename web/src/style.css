@@ -273,6 +273,30 @@ input[type="range"] {
   font: 12px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--graphite);
+  font: 12px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+}
+
+.volume-control input {
+  width: 92px;
+}
+
+.audio-status,
+.voice-message {
+  margin: 8px 0 0;
+  color: var(--graphite);
+  font: 11px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+  text-align: center;
+}
+
+.voice-message {
+  color: var(--ember);
+}
+
 html[data-clean="true"] body {
   width: 1920px;
   height: 1080px;
@@ -299,6 +323,8 @@ html[data-clean="true"] .app-shell {
 
 html[data-clean="true"] .topbar,
 html[data-clean="true"] .topic-status,
+html[data-clean="true"] .audio-status,
+html[data-clean="true"] .voice-message,
 html[data-clean="true"] .lyric-line,
 html[data-clean="true"] .scrubber-row,
 html[data-clean="true"] .controls {
