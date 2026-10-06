@@ -1,0 +1,42 @@
+{
+  "topic_id": "perceptron",
+  "title": "Perceptrons",
+  "bpm": 100,
+  "facts": [
+    {
+      "id": "inputs",
+      "text": "A perceptron receives numeric input values."
+    },
+    {
+      "id": "weights",
+      "text": "Each input is multiplied by its own weight."
+    },
+    {
+      "id": "weighted_sum",
+      "text": "The weighted inputs are added into a weighted sum."
+    },
+    {
+      "id": "bias",
+      "text": "A bias is added to the weighted sum before the threshold."
+    },
+    {
+      "id": "threshold_step",
+      "text": "A step threshold turns the total into an on-or-off decision."
+    },
+    {
+      "id": "output",
+      "text": "The perceptron outputs one when the threshold is reached, otherwise zero."
+    },
+    {
+      "id": "learning_rule",
+      "text": "Learning adjusts weights and bias to reduce prediction error."
+    }
+  ],
+  "scene_menu": [
+    "inputs_bounce",
+    "weights_light",
+    "sum_node",
+    "gate_fire",
+    "weight_update"
+  ]
+}

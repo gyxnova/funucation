@@ -1,0 +1,20 @@
+{
+  "title": "The Little Threshold",
+  "lines": [
+    { "text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs" },
+    { "text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights" },
+    { "text": "Multiply each, then add", "beats": 4, "scene": "sum_node", "fact_id": "weighted_sum" },
+    { "text": "Bias joins the total", "beats": 4, "scene": "sum_node", "fact_id": "bias" },
+    { "text": "The threshold checks the sum", "beats": 4, "scene": "gate_fire", "fact_id": "threshold_step" },
+    { "text": "It clicks to one or zero", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
+    { "text": "Compare what you predicted", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
+    { "text": "Then tune the weights again", "beats": 4, "scene": "weight_update", "fact_id": "learning_rule" }
+  ],
+  "predict": {
+    "after_line": 6,
+    "question": "Inputs 2 and 1 have weights 0.5 and 1, with bias 0. If the threshold is 2, what is the output?",
+    "options": ["1, because 2 is reached", "0, because the sum is 1", "1, because the sum is 3", "0, because there are two inputs"],
+    "correct": 0,
+    "explain": "The weighted sum is 2 × 0.5 + 1 × 1 = 2, so it reaches the threshold."
+  }
+}

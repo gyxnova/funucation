@@ -13,12 +13,16 @@
           <p class="eyebrow">Tiny lessons, big ideas</p>
           <h1>learn-by-song</h1>
         </div>
-        <label class="topic-picker-label" for="topic-picker">
-          Topic
-          <select id="topic-picker" aria-label="Choose a topic"></select>
-        </label>
+        <div class="topic-actions">
+          <label class="topic-picker-label" for="topic-picker">
+            Topic
+            <select id="topic-picker" aria-label="Choose a topic"></select>
+          </label>
+          <button id="generate-song" class="generate-song" type="button">Generate song</button>
+        </div>
       </header>
       <p id="topic-status" class="topic-status" role="status">Loading topics…</p>
+      <p id="generated-meta" class="generated-meta" role="status" hidden></p>
       <section class="player" aria-label="Lesson player">
         <div class="canvas-wrap">
           <canvas id="lesson-canvas" width="1920" height="1080" aria-label="Animated lesson scene"></canvas>

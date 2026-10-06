@@ -24,6 +24,12 @@ export interface Topic {
   pauses: PausePoint[];
 }
 
+export interface GeneratedSong extends Omit<Topic, "audio" | "field" | "id"> {
+  topic_id: string;
+  model_used: string;
+  repairs_used: number;
+}
+
 export interface CatalogEntry {
   id: string;
   title: string;
