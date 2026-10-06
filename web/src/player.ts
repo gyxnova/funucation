@@ -45,6 +45,8 @@ export class Player {
   constructor(
     private readonly elements: PlayerElements,
     private readonly topic: Topic,
+    initialTime = 0,
+    autoPlay = false,
   ) {
     this.engine = new Engine(elements.canvas, topic);
     this.endTime = Math.max(
@@ -53,12 +55,21 @@ export class Player {
       ...topic.lyrics.map((line) => line.end),
       ...topic.pauses.map((pause) => pause.at),
     );
+    this.currentTime = Math.min(this.endTime, Math.max(0, initialTime));
+    this.lastObservedTime = this.currentTime;
+    this.clockTime = this.currentTime;
     elements.audio.src = topic.audio;
+    elements.audio.addEventListener("loadedmetadata", () => {
+      elements.audio.currentTime = this.currentTime;
+      this.anchorClock(this.currentTime);
+    });
     elements.scrubber.max = String(this.endTime);
+    elements.scrubber.value = String(this.currentTime);
     elements.duration.textContent = formatTime(this.endTime);
     this.bindEvents();
     this.renderLoop();
     elements.audio.load();
+    if (autoPlay) void this.togglePlayback();
   }
 
   private bindEvents(): void {

@@ -4,6 +4,10 @@ export interface LyricLine {
   end: number;
 }
 
+export function lineByText(lines: readonly LyricLine[], text: string): LyricLine | null {
+  return lines.find((line) => line.text === text) ?? null;
+}
+
 export function lineAt(lines: readonly LyricLine[], t: number): LyricLine | null {
   return lines.find((line) => t >= line.start && t < line.end) ?? null;
 }

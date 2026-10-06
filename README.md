@@ -26,6 +26,16 @@ cd web ; npm install ; npm run dev
 
 Open the local URL printed by Vite. Requests to `/api` are proxied to the API server. The API health check is available at `http://localhost:8000/api/health`.
 
+## Render a still
+
+With the dependencies installed, render a topic frame at a specific song time:
+
+```powershell
+cd web ; npm run still -- perceptron 3
+```
+
+The renderer starts a temporary Vite server and writes a 1920×1080 PNG under `web/stills/`.
+
 ## Built during the event
 
 - Vite + TypeScript and a vanilla 2D canvas timeline/player scaffold.
@@ -34,4 +44,4 @@ Open the local URL printed by Vite. Requests to `/api` are proxied to the API se
 
 ## Third-party
 
-`pdoom-video` by mexicat is MIT-licensed and was used only as a design reference. No code or assets from it are included.
+`pdoom-video` by mexicat is MIT-licensed and was used only as a design reference. Its attribution and license text are recorded in [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES). No code or assets from it are included.

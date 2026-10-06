@@ -1,12 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap");
-
 :root {
-  color: #f4f3ed;
-  background: #10131d;
-  font-family: "DM Sans", sans-serif;
+  color: #EEE9DF;
+  background: #0A0A0A;
+  font-family: ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   font-weight: 400;
+  --ink: #0A0A0A;
+  --ink2: #151517;
+  --graphite: #5E5B57;
+  --bone: #EEE9DF;
+  --signal: #FF4D12;
+  --ember: #FF8A3D;
+  --dim: #3A3A3E;
 }
 
 * {
@@ -17,9 +22,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(66, 83, 133, 0.22), transparent 55%),
-    #10131d;
+  background: var(--ink);
 }
 
 button,
@@ -43,8 +46,8 @@ select {
 
 .eyebrow {
   margin: 0 0 6px;
-  color: #9aabd9;
-  font: 500 11px "DM Mono", monospace;
+  color: var(--graphite);
+  font: 500 11px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
   letter-spacing: 0.13em;
   text-transform: uppercase;
 }
@@ -58,17 +61,17 @@ h1 {
 .topic-picker-label {
   display: grid;
   gap: 6px;
-  color: #a6a9b7;
+  color: var(--graphite);
   font-size: 12px;
 }
 
 .topic-picker-label select {
   min-width: 190px;
-  border: 1px solid #35394b;
-  border-radius: 9px;
+  border: 1px solid var(--dim);
+  border-radius: 4px;
   padding: 10px 34px 10px 12px;
-  color: #f4f3ed;
-  background: #1a1e2a;
+  color: var(--bone);
+  background: var(--ink2);
 }
 
 .topic-picker-label select:disabled {
@@ -78,25 +81,23 @@ h1 {
 .topic-status {
   min-height: 20px;
   margin: 0 0 10px;
-  color: #a6a9b7;
-  font-size: 13px;
+  color: var(--graphite);
+  font: 12px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
 .player {
   overflow: hidden;
-  border: 1px solid #292d3a;
-  border-radius: 18px;
-  padding: 16px;
-  background: rgba(25, 28, 39, 0.88);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--dim);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--ink2);
 }
 
 .canvas-wrap {
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  background: #151925;
+  background: var(--ink);
 }
 
 canvas {
@@ -112,11 +113,11 @@ canvas {
   max-height: calc(100% - 32px);
   overflow: auto;
   transform: translate(-50%, -50%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 16px;
+  border: 1px solid var(--graphite);
+  border-radius: 8px;
   padding: 22px;
-  background: rgba(18, 21, 32, 0.96);
-  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+  color: var(--bone);
+  background: var(--ink2);
 }
 
 .pause-card h2 {
@@ -131,18 +132,17 @@ canvas {
 }
 
 .pause-options button {
-  border: 1px solid #3d4356;
-  border-radius: 9px;
+  border: 1px solid var(--dim);
+  border-radius: 4px;
   padding: 10px 12px;
-  color: #f4f3ed;
+  color: var(--bone);
   text-align: left;
-  background: #222737;
+  background: var(--ink);
   cursor: pointer;
 }
 
 .pause-options button:hover:not(:disabled) {
-  border-color: #96a9fa;
-  background: #2c344a;
+  border-color: var(--signal);
 }
 
 .pause-options button:disabled {
@@ -152,7 +152,7 @@ canvas {
 .pause-feedback {
   min-height: 0;
   margin: 0;
-  color: #b7c3fa;
+  color: var(--ember);
   line-height: 1.5;
 }
 
@@ -162,13 +162,13 @@ canvas {
 
 .lyric-line {
   position: relative;
-  min-height: 54px;
+  min-height: 66px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 12px 4px 4px;
-  font-size: clamp(17px, 2.6vw, 23px);
-  font-weight: 600;
+  padding: 14px 96px 4px;
+  font-size: clamp(17px, 2.6vw, 25px);
+  font-weight: 800;
   letter-spacing: -0.02em;
   text-align: center;
 }
@@ -179,12 +179,14 @@ canvas {
 }
 
 .lyric-base {
-  color: #666b7c;
+  color: var(--bone);
+  opacity: 0.35;
 }
 
 .lyric-wipe {
   width: 100%;
-  color: #f4f3ed;
+  color: var(--bone);
+  -webkit-text-stroke: 0.5px var(--signal);
   clip-path: inset(0 100% 0 0);
 }
 
@@ -193,8 +195,8 @@ canvas {
   grid-template-columns: 42px minmax(0, 1fr) 42px;
   align-items: center;
   gap: 12px;
-  color: #9296a5;
-  font: 12px "DM Mono", monospace;
+  color: var(--graphite);
+  font: 12px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
 .scrubber-row time:last-child {
@@ -203,7 +205,7 @@ canvas {
 
 input[type="range"] {
   width: 100%;
-  accent-color: #a5b2ff;
+  accent-color: var(--signal);
 }
 
 .controls {
@@ -217,30 +219,67 @@ input[type="range"] {
 
 .controls button {
   min-height: 38px;
-  border: 1px solid #3c4151;
-  border-radius: 9px;
+  border: 1px solid var(--dim);
+  border-radius: 4px;
   padding: 0 13px;
-  color: #e9e8e1;
-  background: #222633;
+  color: var(--bone);
+  background: var(--ink);
   cursor: pointer;
 }
 
 .controls button:hover {
-  border-color: #7785c7;
+  border-color: var(--ember);
 }
 
 .controls .play-button {
   min-width: 84px;
-  border-color: #a5b2ff;
-  color: #111522;
-  background: #a5b2ff;
-  font-weight: 700;
+  border-color: var(--signal);
+  color: var(--bone);
+  background: var(--signal);
+  font-weight: 800;
 }
 
 .keyboard-hint {
   margin-left: 8px;
-  color: #777c8b;
-  font-size: 12px;
+  color: var(--graphite);
+  font: 12px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+}
+
+html[data-clean="true"] body {
+  width: 1920px;
+  height: 1080px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+html[data-clean="true"] .app-shell,
+html[data-clean="true"] .player,
+html[data-clean="true"] .canvas-wrap {
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+}
+
+html[data-clean="true"] .app-shell {
+  max-width: none;
+}
+
+html[data-clean="true"] .topbar,
+html[data-clean="true"] .topic-status,
+html[data-clean="true"] .lyric-line,
+html[data-clean="true"] .scrubber-row,
+html[data-clean="true"] .controls {
+  display: none;
+}
+
+html[data-clean="true"] canvas {
+  width: 1920px;
+  height: 1080px;
 }
 
 @media (max-width: 620px) {
@@ -261,7 +300,7 @@ input[type="range"] {
   }
 
   .player {
-    padding: 9px;
+    padding: 8px;
   }
 
   .keyboard-hint {

@@ -1,4 +1,5 @@
 import { templates } from "../scenes/templates";
+import { drawBackground } from "./style";
 
 export interface TimelineEntry {
   id: string;
@@ -76,7 +77,7 @@ export class Engine {
   private readonly bpm: number;
 
   constructor(
-    private readonly canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement,
     topic: TopicForEngine,
   ) {
     const context = canvas.getContext("2d");
@@ -95,12 +96,7 @@ export class Engine {
   render(t: number): void {
     const context = this.context;
     context.clearRect(0, 0, 1920, 1080);
-    context.fillStyle = "#151925";
-    context.fillRect(0, 0, 1920, 1080);
-
-    const scale = Math.min(this.canvas.clientWidth / 1920, this.canvas.clientHeight / 1080) || 1;
-    context.save();
-    context.scale(scale, scale);
+    drawBackground(context);
 
     const beat = (t * this.bpm) / 60;
     const bar = beat / 4;
@@ -122,6 +118,5 @@ export class Engine {
       template(context, frame, entry.params);
       context.restore();
     }
-    context.restore();
   }
 }
