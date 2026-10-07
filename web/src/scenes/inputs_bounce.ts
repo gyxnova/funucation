@@ -50,5 +50,5 @@ export const inputsBounce: SceneTemplate = (context, frame: Frame) => {
     PERCEPTRON.output.y,
   );
   drawOutput(context);
-  drawMonoLabel(context, "INPUTS", 250, 220, 20);
+  drawMonoLabel(context, "INPUTS", 250, 220, 28);
 };

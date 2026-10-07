@@ -2,79 +2,26 @@
   "id": "perceptron",
   "field": "Computer science",
   "title": "Perceptrons",
-  "bpm": 96,
+  "bpm": 100,
   "audio": "/audio/silence.wav",
   "lyrics": [
-    {
-      "text": "Three little signals start the show",
-      "start": 0,
-      "end": 2.5
-    },
-    {
-      "text": "Each gets a weight before they go",
-      "start": 2.5,
-      "end": 5
-    },
-    {
-      "text": "Multiply, then add their parts",
-      "start": 5,
-      "end": 7.5
-    },
-    {
-      "text": "Compare the sum to threshold one",
-      "start": 7.5,
-      "end": 10
-    },
-    {
-      "text": "Learning shifts weights after a miss",
-      "start": 10,
-      "end": 12.5
-    }
-  ],
-  "scenes": [
-    {
-      "template": "inputs_bounce",
-      "start": 0,
-      "end": 2.5,
-      "params": {}
-    },
-    {
-      "template": "weights_light",
-      "start": 2.5,
-      "end": 5,
-      "params": {}
-    },
-    {
-      "template": "sum_node",
-      "start": 5,
-      "end": 7.5,
-      "params": {}
-    },
-    {
-      "template": "gate_fire",
-      "start": 7.5,
-      "end": 10,
-      "params": {}
-    },
-    {
-      "template": "weight_update",
-      "start": 10,
-      "end": 12.5,
-      "params": {}
-    }
+    { "text": "Three weights shape each signal's path", "start": 0, "end": 2.4, "scene": "weights_light" },
+    { "text": "Bias one joins the weighted sum", "start": 2.4, "end": 4.8, "scene": "bias_node" },
+    { "text": "Inputs one, zero, one roll in", "start": 4.8, "end": 7.2, "scene": "inputs_bounce" },
+    { "text": "Z is point five, minus one, plus two", "start": 7.2, "end": 9.6, "scene": "sum_node" },
+    { "text": "Add minus one to two point five", "start": 9.6, "end": 12, "scene": "sum_node" },
+    { "text": "One point five is greater than zero", "start": 12, "end": 14.4, "scene": "gate_fire" },
+    { "text": "Step says one, the gate will fire", "start": 14.4, "end": 16.8, "scene": "gate_fire" },
+    { "text": "Smooth sigmoid gives point eight two", "start": 16.8, "end": 19.2, "scene": "sigmoid_curve" },
+    { "text": "Update makes z minus one point five", "start": 19.2, "end": 21.6, "scene": "weight_update" }
   ],
   "pauses": [
     {
-      "at": 10,
-      "question": "After the weight update, will the gate fire?",
-      "options": [
-        "Fire",
-        "Don't fire",
-        "Can't tell",
-        "Depends on x2"
-      ],
+      "at": 14.4,
+      "question": "Bias is -1, weighted sum is 2.5. If the bias were -3, would it fire?",
+      "options": ["Fire", "Don't fire", "Can't tell"],
       "correct": 1,
-      "explain": "New sum is 0.5, below the threshold of 1."
+      "explain": "2.5 + (-3) = -0.5, below zero."
     }
   ]
 }

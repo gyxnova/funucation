@@ -1,20 +1,21 @@
 {
-  "title": "The Little Threshold",
+  "title": "Signals, Bias, and a Smooth Curve",
   "lines": [
-    { "text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs" },
-    { "text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights" },
-    { "text": "Multiply their parts and sum them", "beats": 4, "scene": "sum_node", "fact_id": "weighted_sum" },
-    { "text": "Bias joins the total", "beats": 4, "scene": "sum_node", "fact_id": "bias" },
-    { "text": "Compare the sum to threshold one", "beats": 4, "scene": "gate_fire", "fact_id": "threshold_step" },
-    { "text": "It fires when the sum reaches one", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
-    { "text": "Predict: does the updated gate fire?", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
-    { "text": "Then tune weights to fix the miss", "beats": 4, "scene": "weight_update", "fact_id": "learning_rule" }
+    { "text": "Three weights shape each signal's path", "beats": 4, "scene": "weights_light", "fact_id": "weights" },
+    { "text": "Bias one joins the weighted sum", "beats": 4, "scene": "bias_node", "fact_id": "bias" },
+    { "text": "Inputs one, zero, one roll in", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs" },
+    { "text": "Z is point five, minus one, plus two", "beats": 4, "scene": "sum_node", "fact_id": "weighted_sum" },
+    { "text": "Add minus one to two point five", "beats": 4, "scene": "sum_node", "fact_id": "z" },
+    { "text": "One point five is greater than zero", "beats": 4, "scene": "gate_fire", "fact_id": "step_function" },
+    { "text": "Step says one, the gate will fire", "beats": 4, "scene": "gate_fire", "fact_id": "output" },
+    { "text": "Smooth sigmoid gives point eight two", "beats": 4, "scene": "sigmoid_curve", "fact_id": "sigmoid" },
+    { "text": "Update makes z minus one point five", "beats": 4, "scene": "weight_update", "fact_id": "learning_rule" }
   ],
   "predict": {
-    "after_line": 7,
-    "question": "After the weight update, will the gate fire?",
-    "options": ["Fire", "Don't fire", "Can't tell", "Depends on x2"],
+    "after_line": 6,
+    "question": "Bias is -1, weighted sum is 2.5. If the bias were -3, would it fire?",
+    "options": ["Fire", "Don't fire", "Can't tell"],
     "correct": 1,
-    "explain": "New sum is 0.5, below the threshold of 1."
+    "explain": "2.5 + (-3) = -0.5, below zero."
   }
 }

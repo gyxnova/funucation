@@ -8,7 +8,7 @@ FACTS = [
     {"id": "inputs", "text": "Numeric input values."},
     {"id": "weights", "text": "Each input has a weight."},
 ]
-SCENES = ["inputs_bounce", "weights_light"]
+SCENES = ["inputs_bounce", "weights_light", "gate_fire"]
 GOOD_PLAN = {
     "title": "Signals and Weights",
     "lines": [
@@ -16,15 +16,15 @@ GOOD_PLAN = {
         {"text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights"},
         {"text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs"},
         {"text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights"},
-        {"text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs"},
-        {"text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights"},
+        {"text": "Inputs roll into the light", "beats": 4, "scene": "gate_fire", "fact_id": "inputs"},
+        {"text": "Each weight bends the line", "beats": 4, "scene": "gate_fire", "fact_id": "weights"},
         {"text": "Inputs roll into the light", "beats": 4, "scene": "inputs_bounce", "fact_id": "inputs"},
         {"text": "Each weight bends the line", "beats": 4, "scene": "weights_light", "fact_id": "weights"},
     ],
     "predict": {
-        "after_line": 6,
+        "after_line": 5,
         "question": "What happens if input 2 doubles?",
-        "options": ["It doubles", "It halves", "It stays fixed", "It vanishes"],
+        "options": ["It doubles", "It halves", "It stays fixed"],
         "correct": 0,
         "explain": "The input value is doubled.",
     },
@@ -62,6 +62,15 @@ class ValidateSongPlanTests(unittest.TestCase):
         plan["lines"][0]["text"] = "No"
         errors = self.validate(plan)
         self.assertTrue(any("estimated syllables" in error and "4 beats expects 8" in error for error in errors), errors)
+
+    def test_gate_pause_must_fall_between_gate_lines(self) -> None:
+        plan = copy.deepcopy(GOOD_PLAN)
+        plan["predict"]["after_line"] = 4
+        errors = self.validate(plan)
+        self.assertTrue(any("between two consecutive gate_fire lines" in error for error in errors), errors)
+
+    def test_three_option_predict_question_passes(self) -> None:
+        self.assertEqual(self.validate(copy.deepcopy(GOOD_PLAN)), [])
 
 
 if __name__ == "__main__":

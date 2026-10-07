@@ -67,6 +67,7 @@ class TimedLyric(BaseModel):
     text: str
     start: float
     end: float
+    scene: str | None = None
 
 
 class SongScene(BaseModel):
@@ -150,18 +151,21 @@ def quiz_prompt(topic_id: str) -> str:
 def song_prompt(syllabus: dict[str, object]) -> str:
     facts = json.dumps(syllabus["facts"], ensure_ascii=False)
     scenes = json.dumps(syllabus["scene_menu"], ensure_ascii=False)
+    option_count = 3 if syllabus["topic_id"] == "perceptron" else 4
+    options = json.dumps(["..."] * option_count)
     return (
         f"Write an educational song plan for {syllabus['title']} ({syllabus['topic_id']}).\n"
         f"Facts to teach: {facts}\n"
         f"Allowed scene names: {scenes}\n"
         "Return JSON only, with exactly this structure: "
         '{"title":"...","lines":[{"text":"...","beats":4,"scene":"...","fact_id":"..."}],'
-        '"predict":{"after_line":6,"question":"...","options":["...","...","...","..."],'
+        f'"predict":{{"after_line":6,"question":"...","options":{options},'
         '"correct":0,"explain":"..."}}.\n'
         "Rules: write 8-12 lyric lines; make each line 6-10 syllables at 4 beats; "
         "use each provided fact_id at least once; every scene must be from the allowed menu; "
         "after_line is a one-based line number; include one application-style predict question "
-        "with concrete numbers, four options, a zero-based correct index, and a brief explanation. "
+        f"with concrete numbers, exactly {option_count} options, a zero-based correct index, and a brief explanation. "
+        "When gate_fire is in the scene menu, put after_line between two consecutive gate_fire lines. "
         "Do not invent facts."
     )
 
@@ -179,12 +183,17 @@ def song_response(
     scenes: list[SongScene] = []
     elapsed_beats = 0
     line_end_times: list[float] = []
+    current_scene: SongScene | None = None
     for line in plan.lines:
         start = elapsed_beats * seconds_per_beat
         elapsed_beats += line.beats
         end = elapsed_beats * seconds_per_beat
-        lyrics.append(TimedLyric(text=line.text, start=round(start, 4), end=round(end, 4)))
-        scenes.append(SongScene(template=line.scene, start=round(start, 4), end=round(end, 4)))
+        lyrics.append(TimedLyric(text=line.text, start=round(start, 4), end=round(end, 4), scene=line.scene))
+        if current_scene is not None and current_scene.template == line.scene and current_scene.end == round(start, 4):
+            current_scene.end = round(end, 4)
+        else:
+            current_scene = SongScene(template=line.scene, start=round(start, 4), end=round(end, 4))
+            scenes.append(current_scene)
         line_end_times.append(end)
 
     predict = plan.predict

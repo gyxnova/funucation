@@ -5,38 +5,48 @@
   "facts": [
     {
       "id": "inputs",
-      "text": "A perceptron receives numeric input values."
+      "text": "The worked example has inputs x1=1, x2=0, and x3=1."
     },
     {
       "id": "weights",
-      "text": "Each input is multiplied by its own weight."
+      "text": "The corresponding weights are w1=0.5, w2=-1, and w3=2."
     },
     {
       "id": "weighted_sum",
-      "text": "The weighted inputs are added into a weighted sum."
+      "text": "The weighted sum is 0.5*1 + (-1)*0 + 2*1 = 2.5."
     },
     {
       "id": "bias",
-      "text": "A bias is added to the weighted sum before the threshold."
+      "text": "The example bias is -1."
     },
     {
-      "id": "threshold_step",
-      "text": "A step threshold turns the total into an on-or-off decision."
+      "id": "z",
+      "text": "z equals weighted sum plus bias: 2.5 + (-1) = 1.5."
+    },
+    {
+      "id": "step_function",
+      "text": "The perceptron step fires when z >= 0; for z=1.5 it fires."
     },
     {
       "id": "output",
-      "text": "The perceptron outputs one when the threshold is reached, otherwise zero."
+      "text": "The step output is 1 when z >= 0, otherwise it is 0."
+    },
+    {
+      "id": "sigmoid",
+      "text": "The sigmoid gives 0.8176 for z=1.5 and 0.1824 for z=-1.5."
     },
     {
       "id": "learning_rule",
-      "text": "Learning adjusts weights and bias to reduce prediction error."
+      "text": "With target 0, output 1, error -1, and learning rate 1, w1 becomes -0.5, w3 becomes 1, w2 stays -1 because x2=0, and bias becomes -2; new z is -1.5 and the perceptron does not fire."
     }
   ],
   "scene_menu": [
-    "inputs_bounce",
     "weights_light",
+    "bias_node",
+    "inputs_bounce",
     "sum_node",
     "gate_fire",
+    "sigmoid_curve",
     "weight_update"
   ]
 }

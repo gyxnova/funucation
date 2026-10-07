@@ -13,10 +13,12 @@ export const PERCEPTRON = {
     { x: 250, y: 540, radius: 64, label: "x2", value: 0, weight: -1 },
     { x: 250, y: 720, radius: 64, label: "x3", value: 1, weight: 2 },
   ],
-  sum: { x: 900, y: 540, radius: 74, value: 2.5 },
-  gate: { x: 1390, y: 540, width: 190, height: 300, threshold: 1 },
-  output: { x: 1770, y: 540, radius: 64, value: 1 },
+  sum: { x: 900, y: 500, radius: 74, value: 2.5 },
+  bias: { x: 900, y: 820, radius: 60, value: -1 },
+  gate: { x: 1390, y: 500, width: 190, height: 300, boundary: 0 },
+  output: { x: 1770, y: 500, radius: 64, value: 1 },
   weightedSum: "0.5 + 0 + 2 = 2.5",
+  total: 1.5,
 } as const;
 
 export function drawSceneHairline(
@@ -56,6 +58,29 @@ export function drawSceneLabel(
   context.restore();
 }
 
+export function drawCenteredTextRuns(
+  context: CanvasRenderingContext2D,
+  runs: readonly { text: string; size: number; color: string }[],
+  x: number,
+  y: number,
+): void {
+  const widths = runs.map(({ text, size }) => {
+    context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+    return context.measureText(text).width;
+  });
+  let cursor = x - widths.reduce((total, width) => total + width, 0) / 2;
+  runs.forEach(({ text, size, color }, index) => {
+    context.save();
+    context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+    context.textAlign = "left";
+    context.textBaseline = "middle";
+    context.fillStyle = color;
+    context.fillText(text, cursor, y);
+    context.restore();
+    cursor += widths[index] ?? 0;
+  });
+}
+
 export function drawInputBuses(context: CanvasRenderingContext2D, nodes = PERCEPTRON.inputs): void {
   nodes.forEach((input) => {
     drawHairline(
@@ -84,8 +109,8 @@ export function drawDataInputs(
     context.scale(1 + pulse, 1 - pulse);
     drawPlasticCircle(context, 0, 0, input.radius, index === 0 ? PALETTE.signal : PALETTE.ember);
     context.restore();
-    drawBoldText(context, input.label, input.x, input.y - lift - 12, 26, PALETTE.bone);
-    drawMonoLabel(context, String(input.value), input.x, input.y - lift + 22, 22, PALETTE.bone);
+    drawBoldText(context, input.label, input.x, input.y - input.radius - lift - 24, 28, PALETTE.bone);
+    drawMonoLabel(context, String(input.value), input.x, input.y - lift + 22, 40, PALETTE.bone);
   });
 }
 
@@ -112,7 +137,7 @@ export function drawSumNode(
     PALETTE.bone,
   );
   if (label) {
-    drawMonoLabel(context, "sum", PERCEPTRON.sum.x, PERCEPTRON.sum.y + 108, 20, PALETTE.graphite);
+    drawMonoLabel(context, "sum", PERCEPTRON.sum.x, PERCEPTRON.sum.y + 108, 28, PALETTE.graphite);
   }
 }
 
@@ -138,13 +163,13 @@ export function drawMainBus(context: CanvasRenderingContext2D): void {
 }
 
 export function drawGateStructure(context: CanvasRenderingContext2D): void {
-  const { x, y, width, height, threshold } = PERCEPTRON.gate;
+  const { x, y, width, height } = PERCEPTRON.gate;
   context.save();
   context.strokeStyle = PALETTE.bone;
   context.lineWidth = 2;
   context.strokeRect(x - width / 2, y - height / 2, width, height);
   context.restore();
-  drawMonoLabel(context, `θ = ${threshold}`, x, y - height / 2 + 28, 20, PALETTE.bone);
+  drawMonoLabel(context, "z >= 0", x, y - height / 2 + 32, 28, PALETTE.bone);
 }
 
 export function drawOutput(context: CanvasRenderingContext2D, label = true): void {
@@ -154,10 +179,10 @@ export function drawOutput(context: CanvasRenderingContext2D, label = true): voi
     String(PERCEPTRON.output.value),
     PERCEPTRON.output.x,
     PERCEPTRON.output.y,
-    34,
+    40,
     PALETTE.bone,
   );
   if (label) {
-    drawMonoLabel(context, "output", PERCEPTRON.output.x, PERCEPTRON.output.y + 100, 20, PALETTE.graphite);
+    drawMonoLabel(context, "output", PERCEPTRON.output.x, PERCEPTRON.output.y + 100, 28, PALETTE.graphite);
   }
 }

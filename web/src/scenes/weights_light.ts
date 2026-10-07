@@ -6,10 +6,37 @@ import {
   drawMainBus,
   drawOutput,
   drawSceneHairline,
-  drawSceneLabel,
   drawSumNode,
   PERCEPTRON,
 } from "./_layout";
+
+function drawWeightLabel(
+  context: CanvasRenderingContext2D,
+  label: string,
+  value: string,
+  x: number,
+  y: number,
+  color: string,
+): void {
+  context.save();
+  context.font = `500 28px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  const labelWidth = context.measureText(label).width;
+  context.font = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  const valueWidth = context.measureText(value).width;
+  const width = labelWidth + valueWidth;
+  const left = x - width / 2;
+  context.fillStyle = PALETTE.ink;
+  context.fillRect(left - 6, y - 26, width + 12, 52);
+  context.textAlign = "left";
+  context.textBaseline = "middle";
+  context.fillStyle = color;
+  context.font = `500 28px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.fillText(label, left, y);
+  context.fillStyle = color;
+  context.font = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.fillText(value, left + labelWidth, y);
+  context.restore();
+}
 
 export const weightsLight: SceneTemplate = (context, frame: Frame) => {
   const activeIndex = Math.floor(frame.beat) % PERCEPTRON.inputs.length;
@@ -32,12 +59,12 @@ export const weightsLight: SceneTemplate = (context, frame: Frame) => {
 
     const labelX = lineX + (targetX - lineX) * 0.52;
     const labelY = lineY + (targetY - lineY) * 0.52 - 28;
-    drawSceneLabel(
+    drawWeightLabel(
       context,
-      `w${index + 1} = ${input.weight}`,
+      `w${index + 1} = `,
+      String(input.weight),
       labelX,
       labelY,
-      21,
       negative ? PALETTE.graphite : PALETTE.bone,
     );
 
@@ -58,5 +85,5 @@ export const weightsLight: SceneTemplate = (context, frame: Frame) => {
   drawMainBus(context);
   drawGateStructure(context);
   drawOutput(context);
-  drawMonoLabel(context, "WEIGHTS", 250, 220, 20);
+  drawMonoLabel(context, "WEIGHTS", 250, 220, 28);
 };

@@ -2,16 +2,14 @@ import type { Frame, SceneTemplate } from "../engine/engine";
 import { PALETTE, drawPlasticCircle } from "../engine/style";
 import {
   drawDataInputs,
-  drawInputBuses,
   drawSceneHairline,
   drawSceneLabel,
   drawSumNode,
   PERCEPTRON,
 } from "./_layout";
 
-function formatWeight(value: number): string {
-  return Number(value.toFixed(2)).toString();
-}
+const UPDATED_WEIGHTS = [-0.5, -1, 1] as const;
+const UPDATED_BIAS = -2;
 
 function drawUpdateLabel(
   context: CanvasRenderingContext2D,
@@ -20,124 +18,91 @@ function drawUpdateLabel(
   y: number,
   size: number,
   color: string,
+  align: "center" | "left" = "center",
 ): void {
   context.save();
   context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   const width = context.measureText(text).width;
   context.fillStyle = PALETTE.ink;
-  context.fillRect(x - width / 2 - 6, y - size / 2 - 4, width + 12, size + 8);
+  const left = align === "center" ? x - width / 2 : x;
+  context.fillRect(left - 6, y - size / 2 - 4, width + 12, size + 8);
   context.restore();
-  drawSceneLabel(context, text, x, y, size, color);
+  drawSceneLabel(context, text, align === "center" ? x : x + width / 2, y, size, color);
 }
 
 export const weightUpdate: SceneTemplate = (context, frame: Frame) => {
   const progress = Math.min(1, Math.max(0, frame.p));
-  const updatedWeights = [-0.5, PERCEPTRON.inputs[1].weight, 1];
-  const currentWeights = PERCEPTRON.inputs.map((input, index) => {
-    if (index === 0 || index === 2) {
-      return input.weight + (updatedWeights[index]! - input.weight) * progress;
-    }
-    return input.weight;
-  });
+  const currentBias = PERCEPTRON.bias.value + (UPDATED_BIAS - PERCEPTRON.bias.value) * progress;
+  const weights = PERCEPTRON.inputs.map((input, index) =>
+    input.weight + ((UPDATED_WEIGHTS[index] ?? input.weight) - input.weight) * progress);
 
-  drawInputBuses(context);
+  drawSceneLabel(context, "target 0, got 1, error -1, lr 1", 960, 120, 40, PALETTE.ember);
   PERCEPTRON.inputs.forEach((input, index) => {
-    const lineX = input.x + input.radius;
-    const lineY = input.y;
-    const targetX = PERCEPTRON.sum.x - PERCEPTRON.sum.radius;
-    const targetY = PERCEPTRON.sum.y;
-    const weight = currentWeights[index]!;
-    const negative = weight < 0;
+    const startX = input.x + input.radius;
+    const startY = input.y;
+    const endX = PERCEPTRON.sum.x - PERCEPTRON.sum.radius;
+    const endY = PERCEPTRON.sum.y;
+    const weight = weights[index] ?? input.weight;
+
     drawSceneHairline(
       context,
-      lineX,
-      lineY,
-      targetX,
-      targetY,
-      negative ? PALETTE.dim : PALETTE.bone,
+      startX,
+      startY,
+      endX,
+      endY,
+      weight < 0 ? PALETTE.dim : PALETTE.bone,
       1.5 + Math.abs(weight) * 2.2,
     );
-    const labelX = lineX + (targetX - lineX) * 0.52;
-    const labelY = lineY + (targetY - lineY) * 0.52;
-    if (index === 1) {
-      drawUpdateLabel(context, "x2 = 0, so no change", labelX, labelY - 34, 18, PALETTE.graphite);
+    if (index === 0 || index === 2) {
+      const labelY = index === 0 ? 270 : 720;
+      drawUpdateLabel(context, `w${index + 1}: ${input.weight} -> ${UPDATED_WEIGHTS[index]}`, 670, labelY, 40, PALETTE.bone);
+      drawUpdateLabel(context, "w = w + lr*error*x", 670, labelY + 42, 28, PALETTE.graphite);
     } else {
-      const offset = index === 0 ? -48 : 48;
-      drawUpdateLabel(
-        context,
-        `w${index + 1}: ${input.weight} -> ${updatedWeights[index]}`,
-        labelX,
-        labelY + offset,
-        19,
-        PALETTE.bone,
-      );
-      drawUpdateLabel(context, "w = w + lr*error*x", labelX, labelY + offset + (index === 0 ? 25 : 28), 15, PALETTE.graphite);
+      drawUpdateLabel(context, "x2 = 0", 430, 440, 40, PALETTE.graphite);
+      drawUpdateLabel(context, "so no change", 430, 480, 28, PALETTE.graphite);
     }
   });
-
   drawDataInputs(context, frame);
   drawSumNode(context, 1, false);
-  drawSceneLabel(context, "target 0, got 1, error = -1", 960, 150, 25, PALETTE.ember);
+
+  const bias = PERCEPTRON.bias;
+  const biasTop = bias.y - bias.radius;
+  drawSceneHairline(context, bias.x, PERCEPTRON.sum.y + PERCEPTRON.sum.radius, bias.x, biasTop, PALETTE.dim, 2);
+  context.save();
+  context.strokeStyle = PALETTE.graphite;
+  context.lineWidth = 2;
+  context.beginPath();
+  context.arc(bias.x, bias.y, bias.radius, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
+  drawSceneLabel(context, "bias", bias.x, bias.y - 14, 28, PALETTE.bone);
+  drawSceneLabel(context, String(Number(currentBias.toFixed(1))), bias.x, bias.y + 20, 40, PALETTE.signal);
+  drawUpdateLabel(context, "b update", 1000, bias.y - 56, 28, PALETTE.graphite, "left");
+  drawUpdateLabel(context, "-1 -> -2", 1000, bias.y - 18, 40, PALETTE.bone, "left");
+  drawUpdateLabel(context, "b = b + lr*error", 1000, bias.y + 24, 28, PALETTE.graphite, "left");
 
   const gate = PERCEPTRON.gate;
-  const gateLeft = gate.x - gate.width / 2;
-  const gateTop = gate.y - gate.height / 2;
-  drawSceneHairline(
-    context,
-    PERCEPTRON.sum.x + PERCEPTRON.sum.radius,
-    PERCEPTRON.sum.y,
-    gateLeft,
-    PERCEPTRON.sum.y,
-    PALETTE.bone,
-    2,
-  );
-  drawSceneHairline(
-    context,
-    gate.x - gate.width / 2,
-    gate.y - gate.height / 2,
-    gate.x + gate.width / 2,
-    gate.y - gate.height / 2,
-    PALETTE.dim,
-    2,
-  );
-  drawSceneHairline(context, gateLeft, gateTop, gateLeft, gateTop + gate.height, PALETTE.dim, 2);
-  drawSceneHairline(
-    context,
-    gate.x + gate.width / 2,
-    gateTop,
-    gate.x + gate.width / 2,
-    gateTop + gate.height,
-    PALETTE.dim,
-    2,
-  );
-  drawSceneHairline(
-    context,
-    gateLeft,
-    gateTop + gate.height,
-    gate.x + gate.width / 2,
-    gateTop + gate.height,
-    PALETTE.dim,
-    2,
-  );
-  drawSceneLabel(context, "θ = 1", gate.x, gateTop + 36, 18, PALETTE.graphite);
-  drawSceneLabel(context, "NO FIRE", gate.x, gate.y, 20, PALETTE.graphite);
-  drawSceneHairline(
-    context,
-    gate.x + gate.width / 2,
-    gate.y,
-    PERCEPTRON.output.x - PERCEPTRON.output.radius,
-    PERCEPTRON.output.y,
-    PALETTE.dim,
-    2,
-  );
+  const left = gate.x - gate.width / 2;
+  const top = gate.y - gate.height / 2;
+  const right = gate.x + gate.width / 2;
+  const bottom = gate.y + gate.height / 2;
+  drawSceneHairline(context, PERCEPTRON.sum.x + PERCEPTRON.sum.radius, PERCEPTRON.sum.y, left, PERCEPTRON.sum.y, PALETTE.bone, 2);
+  drawSceneHairline(context, left, top, right, top, PALETTE.dim, 2);
+  drawSceneHairline(context, right, top, right, bottom, PALETTE.dim, 2);
+  drawSceneHairline(context, right, bottom, left, bottom, PALETTE.dim, 2);
+  drawSceneHairline(context, left, bottom, left, top, PALETTE.dim, 2);
+  drawSceneLabel(context, "z >= 0", gate.x, top + 36, 28, PALETTE.graphite);
+  drawSceneLabel(context, "NO FIRE", gate.x, gate.y, 28, PALETTE.graphite);
+  drawSceneHairline(context, right, gate.y, PERCEPTRON.output.x - PERCEPTRON.output.radius, gate.y, PALETTE.dim, 2);
   drawPlasticCircle(context, PERCEPTRON.output.x, PERCEPTRON.output.y, PERCEPTRON.output.radius, PALETTE.dim);
-  drawSceneLabel(context, "0", PERCEPTRON.output.x, PERCEPTRON.output.y, 34, PALETTE.bone);
-  drawSceneLabel(context, "output", PERCEPTRON.output.x, PERCEPTRON.output.y + 100, 20, PALETTE.graphite);
+  drawSceneLabel(context, "0", PERCEPTRON.output.x, PERCEPTRON.output.y, 40, PALETTE.bone);
+  drawSceneLabel(context, "output", PERCEPTRON.output.x, PERCEPTRON.output.y + 100, 28, PALETTE.graphite);
 
-  const updatedSum = updatedWeights[0]! * PERCEPTRON.inputs[0].value
-    + updatedWeights[1]! * PERCEPTRON.inputs[1].value
-    + updatedWeights[2]! * PERCEPTRON.inputs[2].value;
-  drawSceneLabel(context, "updated sum", PERCEPTRON.sum.x, PERCEPTRON.sum.y + 86, 18, PALETTE.graphite);
-  drawSceneLabel(context, formatWeight(updatedSum), PERCEPTRON.sum.x, PERCEPTRON.sum.y + 112, 22, PALETTE.bone);
-  drawSceneLabel(context, "-0.5 + 0 + 1 = 0.5 < 1: no fire", 960, 900, 25, PALETTE.bone);
+  const updatedWeightedSum = UPDATED_WEIGHTS[0] * PERCEPTRON.inputs[0].value
+    + UPDATED_WEIGHTS[1] * PERCEPTRON.inputs[1].value
+    + UPDATED_WEIGHTS[2] * PERCEPTRON.inputs[2].value;
+  const updatedTotal = updatedWeightedSum + UPDATED_BIAS;
+  drawSceneLabel(context, "weighted sum = -0.5 + 0 + 1 = 0.5", 960, 930, 40, PALETTE.bone);
+  drawSceneLabel(context, "z = 0.5 + (-2) = -1.5: no fire", 960, 988, 40, PALETTE.signal);
+  drawSceneLabel(context, `sigmoid reads ${(1 / (1 + Math.exp(-updatedTotal))).toFixed(2)}`, 960, 1042, 40, PALETTE.graphite);
 };

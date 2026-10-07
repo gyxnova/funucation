@@ -1,5 +1,7 @@
 import { inputsBounce } from "./inputs_bounce";
+import { biasNode } from "./bias_node";
 import { gateFire } from "./gate_fire";
+import { sigmoidCurve } from "./sigmoid_curve";
 import { sumNode } from "./sum_node";
 import { weightUpdate } from "./weight_update";
 import { weightsLight } from "./weights_light";
@@ -9,9 +11,11 @@ import type { SceneTemplate } from "../engine/engine";
 
 const registeredTemplates: Record<string, SceneTemplate> = {
   inputs_bounce: inputsBounce,
+  bias_node: biasNode,
   weights_light: weightsLight,
   sum_node: sumNode,
   gate_fire: gateFire,
+  sigmoid_curve: sigmoidCurve,
   weight_update: weightUpdate,
 };
 

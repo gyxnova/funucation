@@ -2,17 +2,14 @@ import type { Frame, SceneTemplate } from "../engine/engine";
 import { PALETTE, sparkHead2D, sparkTrail } from "../engine/style";
 import {
   drawDataInputs,
+  drawCenteredTextRuns,
   drawGateStructure,
   drawInputBuses,
   drawMainBus,
   drawOutput,
-  drawSceneHairline,
-  drawSceneLabel,
   drawSumNode,
   PERCEPTRON,
 } from "./_layout";
-
-const TERMS = ["0.5", " + 0", " + 2", " = 2.5"] as const;
 
 export const sumNode: SceneTemplate = (context, frame: Frame) => {
   drawInputBuses(context);
@@ -34,10 +31,10 @@ export const sumNode: SceneTemplate = (context, frame: Frame) => {
   const swell = 1 + Math.sin(frame.beatPhase * Math.PI) * 0.12;
   drawSumNode(context, swell, false);
 
-  const termsShown = Math.min(TERMS.length, Math.floor(frame.p * TERMS.length) + 1);
-  const expression = TERMS.slice(0, termsShown).join("");
-  drawSceneLabel(context, expression, PERCEPTRON.sum.x, PERCEPTRON.sum.y + 132, 32, PALETTE.bone);
-  drawSceneHairline(context, PERCEPTRON.sum.x, PERCEPTRON.sum.y + 174, PERCEPTRON.sum.x, PERCEPTRON.sum.y + 194, PALETTE.dim, 1);
+  drawCenteredTextRuns(context, [
+    { text: "z = w1x1 + w2x2 + w3x3 + b = ", size: 28, color: PALETTE.bone },
+    { text: "2.5 + (-1) = 1.5", size: 40, color: PALETTE.signal },
+  ], 960, 880);
   drawMainBus(context);
   drawGateStructure(context);
   drawOutput(context);

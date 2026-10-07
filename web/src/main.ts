@@ -1,5 +1,6 @@
 import "./style.css";
 import { Player } from "./player";
+import type { LyricLine } from "./engine/lyrics";
 import type { Catalog, CatalogEntry, GeneratedSong, Topic } from "./types";
 
 declare global {
@@ -72,7 +73,23 @@ function topicFile(entry: CatalogEntry): string {
 async function loadTopic(entry: CatalogEntry): Promise<Topic> {
   const response = await fetch(topicFile(entry));
   if (!response.ok) throw new Error(`Could not load topic "${entry.id}" (${response.status})`);
-  return response.json() as Promise<Topic>;
+  const data = await response.json() as Omit<Topic, "scenes"> & {
+    lyrics: (LyricLine & { scene?: string })[];
+    scenes?: Topic["scenes"];
+  };
+  if (data.scenes) return data as Topic;
+
+  const scenes: Topic["scenes"] = [];
+  for (const line of data.lyrics) {
+    if (!line.scene) throw new Error(`Topic "${entry.id}" has a lyric without a scene reference`);
+    const previous = scenes.at(-1);
+    if (previous?.template === line.scene && previous.end === line.start) {
+      previous.end = line.end;
+    } else {
+      scenes.push({ template: line.scene, start: line.start, end: line.end, params: {} });
+    }
+  }
+  return { ...data, scenes };
 }
 
 async function start(): Promise<void> {

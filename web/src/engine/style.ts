@@ -8,6 +8,14 @@ export const PALETTE = {
   dim: "#3A3A3E",
 } as const;
 
+interface PlasticSprite {
+  canvas: HTMLCanvasElement;
+  padding: number;
+  pixelRatio: number;
+}
+
+const plasticSprites = new Map<string, PlasticSprite>();
+
 export function drawBackground(context: CanvasRenderingContext2D): void {
   context.fillStyle = PALETTE.ink;
   context.fillRect(0, 0, 1920, 1080);
@@ -50,13 +58,84 @@ function plasticGradient(
   return gradient;
 }
 
-function drawSpecular(context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
+function createPlasticSprite(
+  shape: "circle" | "roundRect",
+  width: number,
+  height: number,
+  radius: number,
+  color: string,
+): PlasticSprite {
+  const pixelRatio = window.devicePixelRatio || 1;
+  const size = Math.max(width, height);
+  const padding = Math.max(12, size * 0.25);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil((width + padding * 2) * pixelRatio);
+  canvas.height = Math.ceil((height + padding * 2) * pixelRatio);
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Could not create a canvas for a plastic shape");
+  context.scale(pixelRatio, pixelRatio);
+
+  const centerX = padding + width / 2;
+  const centerY = padding + height / 2;
+  const shadowY = centerY + height * 0.48;
+  const shadow = context.createRadialGradient(
+    centerX,
+    shadowY,
+    Math.min(width, height) * 0.08,
+    centerX,
+    shadowY,
+    size * 0.68,
+  );
+  shadow.addColorStop(0, "rgba(0, 0, 0, 0.38)");
+  shadow.addColorStop(0.42, "rgba(0, 0, 0, 0.22)");
+  shadow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  context.fillStyle = shadow;
+  context.beginPath();
+  context.ellipse(centerX, shadowY, width * 0.52, Math.max(8, height * 0.28), 0, 0, Math.PI * 2);
+  context.fill();
+
+  context.beginPath();
+  if (shape === "circle") {
+    context.arc(centerX, centerY, width / 2, 0, Math.PI * 2);
+  } else {
+    context.roundRect(padding, padding, width, height, Math.max(0, Math.min(radius, width / 2, height / 2)));
+  }
+  context.fillStyle = plasticGradient(context, centerX, centerY, size / 2, color);
+  context.fill();
+
   context.save();
   context.fillStyle = "rgba(255, 250, 238, 0.72)";
   context.beginPath();
-  context.ellipse(x, y, width, height, -Math.PI / 5, 0, Math.PI * 2);
+  context.ellipse(
+    centerX - width * 0.18,
+    centerY - height * 0.22,
+    width * 0.11,
+    Math.max(3, height * 0.045),
+    -Math.PI / 5,
+    0,
+    Math.PI * 2,
+  );
   context.fill();
   context.restore();
+
+  return { canvas, padding, pixelRatio };
+}
+
+function plasticSprite(
+  shape: "circle" | "roundRect",
+  width: number,
+  height: number,
+  radius: number,
+  color: string,
+): PlasticSprite {
+  const pixelRatio = window.devicePixelRatio || 1;
+  const key = `${shape}:${width}:${height}:${radius}:${color}:${pixelRatio}`;
+  let sprite = plasticSprites.get(key);
+  if (!sprite) {
+    sprite = createPlasticSprite(shape, width, height, radius, color);
+    plasticSprites.set(key, sprite);
+  }
+  return sprite;
 }
 
 export function drawPlasticCircle(
@@ -66,17 +145,15 @@ export function drawPlasticCircle(
   radius: number,
   color: string,
 ): void {
-  context.save();
-  context.shadowColor = "rgba(0, 0, 0, 0.48)";
-  context.shadowBlur = radius * 0.24;
-  context.shadowOffsetY = radius * 0.16;
-  context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2);
-  context.fillStyle = plasticGradient(context, x, y, radius, color);
-  context.fill();
-  context.shadowColor = "transparent";
-  drawSpecular(context, x - radius * 0.35, y - radius * 0.42, radius * 0.22, radius * 0.09);
-  context.restore();
+  const sprite = plasticSprite("circle", radius * 2, radius * 2, radius, color);
+  const padding = sprite.padding;
+  context.drawImage(
+    sprite.canvas,
+    x - radius - padding,
+    y - radius - padding,
+    radius * 2 + padding * 2,
+    radius * 2 + padding * 2,
+  );
 }
 
 export function drawPlasticRoundRect(
@@ -88,18 +165,14 @@ export function drawPlasticRoundRect(
   radius: number,
   color: string,
 ): void {
-  const cornerRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
-  context.save();
-  context.shadowColor = "rgba(0, 0, 0, 0.48)";
-  context.shadowBlur = Math.min(width, height) * 0.16;
-  context.shadowOffsetY = Math.min(width, height) * 0.1;
-  context.beginPath();
-  context.roundRect(x, y, width, height, cornerRadius);
-  context.fillStyle = plasticGradient(context, x + width / 2, y + height / 2, Math.min(width, height), color);
-  context.fill();
-  context.shadowColor = "transparent";
-  drawSpecular(context, x + width * 0.28, y + height * 0.2, width * 0.13, Math.max(2, height * 0.035));
-  context.restore();
+  const sprite = plasticSprite("roundRect", width, height, radius, color);
+  context.drawImage(
+    sprite.canvas,
+    x - sprite.padding,
+    y - sprite.padding,
+    width + sprite.padding * 2,
+    height + sprite.padding * 2,
+  );
 }
 
 export function drawHairline(
@@ -194,8 +267,6 @@ export function sparkHead2D(
 
   context.save();
   context.globalCompositeOperation = "lighter";
-  context.shadowColor = PALETTE.signal;
-  context.shadowBlur = radius * 1.5;
   const halo = context.createRadialGradient(x, y, 0, x, y, radius * 2.1);
   halo.addColorStop(0, "rgba(255, 245, 222, 0.98)");
   halo.addColorStop(0.2, "rgba(255, 138, 61, 0.98)");

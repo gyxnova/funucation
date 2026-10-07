@@ -18,8 +18,8 @@ class PredictQuestion(BaseModel):
 
     after_line: int = Field(ge=1)
     question: str = Field(min_length=1, max_length=500)
-    options: list[str] = Field(min_length=4, max_length=4)
-    correct: int = Field(ge=0, le=3)
+    options: list[str] = Field(min_length=3, max_length=4)
+    correct: int = Field(ge=0)
     explain: str = Field(min_length=1, max_length=500)
 
 
@@ -83,6 +83,20 @@ def validate_song_plan(
             f"predict.after_line must refer to an existing line (1-{len(plan.lines)}); "
             f"got {plan.predict.after_line}"
         )
+    if plan.predict.correct >= len(plan.predict.options):
+        errors.append(
+            f"predict.correct must refer to an available option "
+            f"(0-{len(plan.predict.options) - 1}); got {plan.predict.correct}"
+        )
     if any(not option.strip() for option in plan.predict.options):
         errors.append("predict.options must not contain empty options")
+    if "gate_fire" in scene_menu:
+        pause_line = plan.predict.after_line
+        if pause_line >= len(plan.lines):
+            errors.append("predict.after_line must be before the final line to pause inside gate_fire")
+        elif (
+            plan.lines[pause_line - 1].scene != "gate_fire"
+            or plan.lines[pause_line].scene != "gate_fire"
+        ):
+            errors.append("predict.after_line must fall between two consecutive gate_fire lines")
     return errors

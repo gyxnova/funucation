@@ -2,6 +2,7 @@ export interface LyricLine {
   text: string;
   start: number;
   end: number;
+  scene?: string;
 }
 
 export function lineByText(lines: readonly LyricLine[], text: string): LyricLine | null {

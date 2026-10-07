@@ -75,6 +75,7 @@ export class Engine {
   private readonly timeline: TimelineEntry[];
   private readonly context: CanvasRenderingContext2D;
   private readonly bpm: number;
+  private readonly canvas: HTMLCanvasElement;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -82,11 +83,11 @@ export class Engine {
   ) {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D is not available in this browser");
+    this.canvas = canvas;
     this.context = context;
     this.timeline = timelineFromTopic(topic);
     this.bpm = topic.bpm;
-    canvas.width = 1920;
-    canvas.height = 1080;
+    this.syncCanvasSize();
   }
 
   get entries(): readonly TimelineEntry[] {
@@ -94,7 +95,9 @@ export class Engine {
   }
 
   render(t: number): void {
+    this.syncCanvasSize();
     const context = this.context;
+    context.setTransform(this.canvas.width / 1920, 0, 0, this.canvas.height / 1080, 0, 0);
     context.clearRect(0, 0, 1920, 1080);
     drawBackground(context);
 
@@ -118,5 +121,14 @@ export class Engine {
       template(context, frame, entry.params);
       context.restore();
     }
+  }
+
+  private syncCanvasSize(): void {
+    const bounds = this.canvas.getBoundingClientRect();
+    const pixelRatio = window.devicePixelRatio || 1;
+    const width = Math.max(1, Math.round(bounds.width * pixelRatio));
+    const height = Math.max(1, Math.round(bounds.height * pixelRatio));
+    if (this.canvas.width !== width) this.canvas.width = width;
+    if (this.canvas.height !== height) this.canvas.height = height;
   }
 }
