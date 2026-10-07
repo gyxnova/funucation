@@ -3,6 +3,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+MIN_SYLLABLES = 5
+MAX_SYLLABLES = 11
+
 
 class SongLine(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -63,16 +66,16 @@ def validate_song_plan(
     fact_ids = {fact["id"] for fact in facts}
     used_fact_ids = {line.fact_id for line in plan.lines}
     for index, line in enumerate(plan.lines, start=1):
+        if re.search(r"\d", line.text):
+            errors.append(f"line {index} contains a digit; write numbers as words")
         if line.scene not in scene_menu:
             errors.append(f"line {index} has unknown scene {line.scene!r}; allowed scenes: {', '.join(scene_menu)}")
         if line.fact_id not in fact_ids:
             errors.append(f"line {index} has unknown fact_id {line.fact_id!r}")
-        expected = line.beats * 2
         syllables = estimate_syllables(line.text)
-        if abs(syllables - expected) > 3:
+        if not MIN_SYLLABLES <= syllables <= MAX_SYLLABLES:
             errors.append(
-                f"line {index} has {syllables} estimated syllables; "
-                f"{line.beats} beats expects {expected} (+/-3)"
+                f"line {index} has {syllables} estimated syllables; expects {MIN_SYLLABLES}-{MAX_SYLLABLES}"
             )
 
     missing_facts = sorted(fact_ids - used_fact_ids)
@@ -99,4 +102,29 @@ def validate_song_plan(
             or plan.lines[pause_line].scene != "gate_fire"
         ):
             errors.append("predict.after_line must fall between two consecutive gate_fire lines")
+    return errors
+
+
+def validate_quiz_content(quiz: Any, facts: list[dict[str, str]]) -> list[str]:
+    errors: list[str] = []
+    fact_numbers = {
+        number
+        for fact in facts
+        for number in re.findall(r"(?<![A-Za-z])[-+]?\d+(?:\.\d+)?", fact["text"])
+    }
+
+    for index, question in enumerate(quiz.questions, start=1):
+        options = [option.strip().casefold() for option in question.options]
+        if not isinstance(question.correct_index, int) or not 0 <= question.correct_index < len(question.options):
+            errors.append(f"question {index} must designate exactly one correct option with a valid correct_index")
+        if len(set(options)) != len(options):
+            errors.append(f"question {index} has duplicate options")
+        if any(re.search(r"\b(?:all|none) of the above\b", option) for option in options):
+            errors.append(f"question {index} uses a prohibited all/none-of-the-above option")
+        if not any(
+            re.search(rf"(?<![\w.]){re.escape(number)}(?![\w.])", question.explanation)
+            for number in fact_numbers
+        ):
+            errors.append(f"question {index} explanation must include a number from the facts")
+
     return errors
