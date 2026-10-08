@@ -36,12 +36,18 @@ export const gateFire: SceneTemplate = (context, frame: Frame) => {
   const zX = xAt(PERCEPTRON.total);
   const firing = PERCEPTRON.total >= 0;
   const flashing = firing && frame.beatPhase > 0.78;
-  const graphColor = flashing ? PALETTE.ember : PALETTE.bone;
+  const graphColor = flashing ? PALETTE.ember : PALETTE.signal;
 
   drawSceneHairline(context, PERCEPTRON.sum.x + PERCEPTRON.sum.radius, y, graphLeft, y, PALETTE.bone, 2);
   drawSceneHairline(context, graphLeft, yZero, graphRight, yZero, PALETTE.graphite, 2);
   drawSceneHairline(context, graphLeft, graphTop, graphLeft, yZero, PALETTE.graphite, 2);
   drawSceneHairline(context, zeroX, graphTop, zeroX, yZero, PALETTE.ember, 2);
+  context.save();
+  context.globalAlpha = 0.5;
+  context.strokeStyle = PALETTE.bone;
+  context.lineWidth = 1;
+  context.strokeRect(graphLeft, graphTop, graphRight - graphLeft, yZero - graphTop);
+  context.restore();
   drawSceneHairline(context, graphLeft, yZero - 12, zeroX, yZero - 12, graphColor, 3);
   drawSceneHairline(context, zeroX, yZero - 12, zeroX, yOne, graphColor, 3);
   drawSceneHairline(context, zeroX, yOne, graphRight, yOne, graphColor, 3);
@@ -65,4 +71,5 @@ export const gateFire: SceneTemplate = (context, frame: Frame) => {
   );
   drawOutput(context);
   drawSceneLabel(context, "output = 1 if z >= 0 else 0", 960, 840, 40, PALETTE.bone);
+  drawSceneLabel(context, "z = 1.5 >= 0 -> FIRE", 960, 920, 40, PALETTE.signal);
 };

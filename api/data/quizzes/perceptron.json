@@ -1,0 +1,37 @@
+{
+  "topic_id": "perceptron",
+  "questions": [
+    {
+      "question": "With inputs 1, 0, 1 and weights 0.5, -1, 2, what is the weighted sum?",
+      "options": ["1.5", "3.5", "2.5", "-2.5"],
+      "correct_index": 2,
+      "explanation": "0.5×1 + (-1)×0 + 2×1 = 2.5."
+    },
+    {
+      "question": "If the weighted sum is 2.5 and bias is -1, what is z?",
+      "options": ["-1.5", "1.5", "2.5", "3.5"],
+      "correct_index": 1,
+      "explanation": "z = 2.5 + (-1) = 1.5."
+    },
+    {
+      "question": "For z=1.5, does the step rule z >= 0 output 1 or 0?",
+      "options": ["0", "0.8176", "1", "0.1824"],
+      "correct_index": 2,
+      "explanation": "Since 1.5 >= 0, the step output is 1."
+    },
+    {
+      "question": "At z=1.5, what value does the sigmoid give?",
+      "options": ["0.5", "1", "0.8176", "0.1824"],
+      "correct_index": 2,
+      "explanation": "The sigmoid value at z=1.5 is 0.8176."
+    },
+    {
+      "question": "With target 0, output 1, rate 1, x1=1, and w1=0.5, what is updated w1?",
+      "options": ["0.5", "-0.5", "1.5", "-1.5"],
+      "correct_index": 1,
+      "explanation": "Error = 0 - 1 = -1; w1 = 0.5 + 1×(-1)×1 = -0.5."
+    }
+  ],
+  "model_used": "curated",
+  "repairs_used": 0
+}

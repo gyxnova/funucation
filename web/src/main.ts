@@ -1,7 +1,7 @@
 import "./style.css";
 import { Player } from "./player";
 import type { LyricLine } from "./engine/lyrics";
-import type { Catalog, CatalogEntry, GeneratedSong, Topic } from "./types";
+import type { Catalog, CatalogEntry, GeneratedSong, QuizResponse, Topic } from "./types";
 
 declare global {
   interface Window {
@@ -121,16 +121,153 @@ async function start(): Promise<void> {
 
   let player: Player | null = null;
   let selectedEntry: CatalogEntry | null = null;
+  const playerSection = required(document.querySelector<HTMLElement>(".player"), ".player");
+  const quizScreen = required(document.querySelector<HTMLElement>("#quiz-screen"), "#quiz-screen");
+  const quizSource = required(document.querySelector<HTMLElement>("#quiz-source"), "#quiz-source");
+  const quizProgress = required(document.querySelector<HTMLElement>("#quiz-progress"), "#quiz-progress");
+  const quizQuestion = required(document.querySelector<HTMLElement>("#quiz-question"), "#quiz-question");
+  const quizOptions = required(document.querySelector<HTMLElement>("#quiz-options"), "#quiz-options");
+  const quizFeedback = required(document.querySelector<HTMLElement>("#quiz-feedback"), "#quiz-feedback");
+  const quizResult = required(document.querySelector<HTMLElement>("#quiz-result"), "#quiz-result");
+  const quizNext = required(document.querySelector<HTMLButtonElement>("#quiz-next"), "#quiz-next");
+  const quizReplay = required(document.querySelector<HTMLButtonElement>("#quiz-replay"), "#quiz-replay");
+  let quiz: QuizResponse | null = null;
+  let quizIndex = 0;
+  let quizScore = 0;
+  let questionAnswered = false;
+
+  const isQuizResponse = (value: unknown): value is QuizResponse => {
+    if (typeof value !== "object" || value === null) return false;
+    const candidate = value as Partial<QuizResponse>;
+    return typeof candidate.topic_id === "string"
+      && typeof candidate.model_used === "string"
+      && typeof candidate.repairs_used === "number"
+      && Array.isArray(candidate.questions)
+      && candidate.questions.length > 0
+      && candidate.questions.every((question) =>
+        typeof question.question === "string"
+        && Array.isArray(question.options)
+        && question.options.length >= 2
+        && question.options.every((option) => typeof option === "string")
+        && Number.isInteger(question.correct_index)
+        && question.correct_index >= 0
+        && question.correct_index < question.options.length
+        && typeof question.explanation === "string");
+  };
+
+  const renderQuizQuestion = (): void => {
+    if (!quiz) return;
+    const activeQuiz = quiz;
+    questionAnswered = false;
+    quizOptions.replaceChildren();
+    quizFeedback.textContent = "";
+    quizNext.hidden = true;
+    quizReplay.hidden = true;
+    if (quizIndex >= activeQuiz.questions.length) {
+      quizProgress.textContent = "";
+      quizQuestion.textContent = "Lesson complete";
+      quizResult.textContent = `Score: ${quizScore} / ${activeQuiz.questions.length}`;
+      quizReplay.hidden = false;
+      return;
+    }
+    const current = activeQuiz.questions[quizIndex];
+    if (!current) return;
+    quizProgress.textContent = `Question ${quizIndex + 1} of ${quiz.questions.length}`;
+    quizQuestion.textContent = current.question;
+    quizResult.textContent = "";
+    current.options.forEach((option, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = option;
+      button.addEventListener("click", () => {
+        if (questionAnswered) return;
+        questionAnswered = true;
+        const correct = index === current.correct_index;
+        if (correct) quizScore += 1;
+        quizFeedback.textContent = `${correct ? "Correct." : "Not quite."} ${current.explanation}`;
+        quizOptions.querySelectorAll("button").forEach((choice) => {
+          choice.disabled = true;
+        });
+        quizNext.textContent = quizIndex + 1 === activeQuiz.questions.length ? "See score" : "Next question";
+        quizNext.hidden = false;
+      });
+      quizOptions.append(button);
+    });
+  };
+
+  quizNext.addEventListener("click", () => {
+    quizIndex += 1;
+    renderQuizQuestion();
+  });
+  quizReplay.addEventListener("click", () => {
+    quizScreen.hidden = true;
+    playerSection.hidden = false;
+    player?.replay();
+  });
+
+  const showQuiz = async (topicId: string): Promise<void> => {
+    playerSection.hidden = true;
+    quizScreen.hidden = false;
+    quizSource.textContent = "Loading quiz…";
+    quizProgress.textContent = "";
+    quizQuestion.textContent = "";
+    quizOptions.replaceChildren();
+    quizFeedback.textContent = "";
+    quizResult.textContent = "";
+    quizNext.hidden = true;
+    quizReplay.hidden = true;
+
+    try {
+      const response = await fetch("/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic_id: topicId }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!response.ok) throw new Error(`Quiz request failed (${response.status})`);
+      const generated: unknown = await response.json();
+      if (!isQuizResponse(generated) || generated.topic_id !== topicId) {
+        throw new Error("Quiz response did not match the expected format");
+      }
+      quiz = generated;
+      quizSource.textContent = generated.model_used === "fallback" || generated.model_used === "curated"
+        ? "Curated quiz"
+        : "AI-generated quiz";
+    } catch {
+      try {
+        const response = await fetch(`/quizzes/${encodeURIComponent(topicId)}.json`);
+        if (!response.ok) throw new Error(`Curated quiz unavailable (${response.status})`);
+        const curated: unknown = await response.json();
+        if (!isQuizResponse(curated) || curated.topic_id !== topicId) {
+          throw new Error("Curated quiz has an invalid format");
+        }
+        quiz = curated;
+        quizSource.textContent = "Curated quiz";
+      } catch (error) {
+        quiz = null;
+        quizSource.textContent = "Quiz unavailable";
+        quizResult.textContent = error instanceof Error ? error.message : String(error);
+        quizReplay.hidden = false;
+        return;
+      }
+    }
+    quizIndex = 0;
+    quizScore = 0;
+    renderQuizQuestion();
+  };
+
   const chooseTopic = async (topicId: string, initialTime = 0): Promise<void> => {
     const entry = readyTopics.find((topic) => topic.id === topicId);
     if (!entry) return;
     selectedEntry = entry;
+    quizScreen.hidden = true;
+    playerSection.hidden = false;
     songMeta.hidden = true;
     topicStatus.textContent = `Loading ${entry.title}…`;
     try {
       const topic = await loadTopic(entry);
       player?.destroy();
-      player = new Player(resolvePlayerElements(), topic, initialTime);
+      player = new Player(resolvePlayerElements(), topic, initialTime, () => void showQuiz(entry.id));
       topicStatus.textContent = `${topic.field} · ${topic.title}`;
     } catch (error) {
       topicStatus.textContent = `Could not open topic: ${String(error)}`;
@@ -142,6 +279,8 @@ async function start(): Promise<void> {
   songButton.addEventListener("click", async () => {
     const entry = selectedEntry;
     if (!entry) return;
+    quizScreen.hidden = true;
+    playerSection.hidden = false;
     songButton.disabled = true;
     songButton.textContent = "Generating…";
     songMeta.hidden = true;
@@ -171,7 +310,7 @@ async function start(): Promise<void> {
         pauses: generated.pauses,
       };
       player?.destroy();
-      player = new Player(resolvePlayerElements(), topic);
+      player = new Player(resolvePlayerElements(), topic, 0, () => void showQuiz(entry.id));
       topicStatus.textContent = `${topic.field} · ${topic.title}`;
       songMeta.textContent = `Generated by ${generated.model_used} after ${generated.repairs_used} repairs`;
       songMeta.hidden = false;
@@ -181,7 +320,7 @@ async function start(): Promise<void> {
       try {
         const fallbackTopic = await loadTopic(entry);
         player?.destroy();
-        player = new Player(resolvePlayerElements(), fallbackTopic);
+        player = new Player(resolvePlayerElements(), fallbackTopic, 0, () => void showQuiz(entry.id));
         songMeta.textContent = "Using the local topic fallback";
         songMeta.hidden = false;
       } catch (fallbackError) {

@@ -24,6 +24,8 @@ Dynamic and on the beat, with dry humor in the timing and behavior rather than i
 
 Use a system rounded bold sans stack for lyrics: large, clear, and short enough to read at a glance. Use monospace for numbers, variables, and labels. Keep generous negative space around both type and moving shapes. Do not load external fonts.
 
+Scene typography has hard minimums: labels are at least **28px**; numbers and equations are at least **40px**. Do not shrink text below these sizes to fit a composition; simplify or reposition it instead.
+
 ## Karaoke rules
 
 Each lyric line is readable and highlighted in sync with its own start and end. The sung portion uses bone and signal; the unsung portion remains visible at 35% opacity. Keep lyric text inside a 96px safe area on every edge. Lyric windows are **TBD** for all plates until timed to the final song.

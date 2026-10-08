@@ -40,3 +40,17 @@ export interface CatalogEntry {
 export interface Catalog {
   topics: CatalogEntry[];
 }
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation: string;
+}
+
+export interface QuizResponse {
+  topic_id: string;
+  questions: QuizQuestion[];
+  model_used: string;
+  repairs_used: number;
+}

@@ -21,8 +21,8 @@ function yAt(output: number): number {
 function drawSigmoidLabel(context: CanvasRenderingContext2D): void {
   const prefix = "sigmoid: σ(z) = 1 / (1 + e";
   const suffix = ")";
-  const mainFont = `500 30px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
-  const exponentFont = `500 20px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  const mainFont = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  const exponentFont = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   context.save();
   context.font = mainFont;
   const prefixWidth = context.measureText(prefix).width;

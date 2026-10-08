@@ -8,6 +8,11 @@ export const PALETTE = {
   dim: "#3A3A3E",
 } as const;
 
+export function minimumTextSize(text: string, requestedSize: number): number {
+  const minimum = /[\d=+*/<>]|->|→/.test(text) ? 40 : 28;
+  return Math.max(minimum, requestedSize);
+}
+
 interface PlasticSprite {
   canvas: HTMLCanvasElement;
   padding: number;
@@ -228,7 +233,7 @@ export function drawBoldText(
   align: CanvasTextAlign = "center",
 ): void {
   context.save();
-  context.font = `800 ${size}px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif`;
+  context.font = `800 ${minimumTextSize(text, size)}px ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif`;
   context.textAlign = align;
   context.textBaseline = "middle";
   context.fillStyle = color;
@@ -246,7 +251,7 @@ export function drawMonoLabel(
   align: CanvasTextAlign = "center",
 ): void {
   context.save();
-  context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${minimumTextSize(text, size)}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   context.textAlign = align;
   context.textBaseline = "middle";
   context.fillStyle = color;

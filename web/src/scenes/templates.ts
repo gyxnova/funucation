@@ -5,7 +5,7 @@ import { sigmoidCurve } from "./sigmoid_curve";
 import { sumNode } from "./sum_node";
 import { weightUpdate } from "./weight_update";
 import { weightsLight } from "./weights_light";
-import { PALETTE } from "../engine/style";
+import { PALETTE, minimumTextSize } from "../engine/style";
 import { drawSceneLabel } from "./_layout";
 import type { SceneTemplate } from "../engine/engine";
 
@@ -34,7 +34,7 @@ export const templates: Readonly<Record<string, SceneTemplate>> = new Proxy(regi
     let missingTemplate = missingTemplates.get(property);
     if (!missingTemplate) {
       missingTemplate = (context) => {
-        drawSceneLabel(context, `missing scene: ${property}`, 96, 96, 24, PALETTE.ember);
+        drawSceneLabel(context, `missing scene: ${property}`, 96, 96, minimumTextSize(property, 28), PALETTE.ember);
       };
       missingTemplates.set(property, missingTemplate);
     }

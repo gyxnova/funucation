@@ -1,5 +1,5 @@
 import type { Frame, SceneTemplate } from "../engine/engine";
-import { PALETTE, drawPlasticCircle } from "../engine/style";
+import { PALETTE, drawPlasticCircle, minimumTextSize } from "../engine/style";
 import {
   drawDataInputs,
   drawSceneHairline,
@@ -20,14 +20,15 @@ function drawUpdateLabel(
   color: string,
   align: "center" | "left" = "center",
 ): void {
+  const effectiveSize = minimumTextSize(text, size);
   context.save();
-  context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${effectiveSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   const width = context.measureText(text).width;
   context.fillStyle = PALETTE.ink;
   const left = align === "center" ? x - width / 2 : x;
-  context.fillRect(left - 6, y - size / 2 - 4, width + 12, size + 8);
+  context.fillRect(left - 6, y - effectiveSize / 2 - 4, width + 12, effectiveSize + 8);
   context.restore();
-  drawSceneLabel(context, text, align === "center" ? x : x + width / 2, y, size, color);
+  drawSceneLabel(context, text, align === "center" ? x : x + width / 2, y, effectiveSize, color);
 }
 
 export const weightUpdate: SceneTemplate = (context, frame: Frame) => {

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "still": "node scripts/still.mjs"
+    "still": "node scripts/still.mjs",
+    "sheet": "node scripts/sheet.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0",

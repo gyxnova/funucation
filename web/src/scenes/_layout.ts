@@ -5,6 +5,7 @@ import {
   drawHairline,
   drawMonoLabel,
   drawPlasticCircle,
+  minimumTextSize,
 } from "../engine/style";
 
 export const PERCEPTRON = {
@@ -50,7 +51,8 @@ export function drawSceneLabel(
   color: string,
 ): void {
   context.save();
-  context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  const effectiveSize = minimumTextSize(text, size);
+  context.font = `500 ${effectiveSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillStyle = color;
@@ -65,13 +67,14 @@ export function drawCenteredTextRuns(
   y: number,
 ): void {
   const widths = runs.map(({ text, size }) => {
-    context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+    context.font = `500 ${minimumTextSize(text, size)}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
     return context.measureText(text).width;
   });
   let cursor = x - widths.reduce((total, width) => total + width, 0) / 2;
   runs.forEach(({ text, size, color }, index) => {
+    const effectiveSize = minimumTextSize(text, size);
     context.save();
-    context.font = `500 ${size}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+    context.font = `500 ${effectiveSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
     context.textAlign = "left";
     context.textBaseline = "middle";
     context.fillStyle = color;

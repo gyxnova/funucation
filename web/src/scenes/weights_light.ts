@@ -1,5 +1,5 @@
 import type { Frame, SceneTemplate } from "../engine/engine";
-import { PALETTE, drawMonoLabel, sparkHead2D, sparkTrail } from "../engine/style";
+import { PALETTE, drawMonoLabel, minimumTextSize, sparkHead2D, sparkTrail } from "../engine/style";
 import {
   drawDataInputs,
   drawGateStructure,
@@ -18,22 +18,24 @@ function drawWeightLabel(
   y: number,
   color: string,
 ): void {
+  const labelSize = minimumTextSize(label, 28);
+  const valueSize = minimumTextSize(value, 40);
   context.save();
-  context.font = `500 28px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${labelSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   const labelWidth = context.measureText(label).width;
-  context.font = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${valueSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   const valueWidth = context.measureText(value).width;
   const width = labelWidth + valueWidth;
   const left = x - width / 2;
   context.fillStyle = PALETTE.ink;
-  context.fillRect(left - 6, y - 26, width + 12, 52);
+  context.fillRect(left - 6, y - Math.max(labelSize, valueSize) / 2 - 4, width + 12, Math.max(labelSize, valueSize) + 8);
   context.textAlign = "left";
   context.textBaseline = "middle";
   context.fillStyle = color;
-  context.font = `500 28px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${labelSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   context.fillText(label, left, y);
   context.fillStyle = color;
-  context.font = `500 40px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
+  context.font = `500 ${valueSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
   context.fillText(value, left + labelWidth, y);
   context.restore();
 }

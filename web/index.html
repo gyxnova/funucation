@@ -57,6 +57,16 @@
         <p id="audio-status" class="audio-status" role="status">Beat + voice · loading…</p>
         <p id="voice-message" class="voice-message" role="status" hidden></p>
       </section>
+      <section id="quiz-screen" class="quiz-screen" aria-label="End-of-video quiz" hidden>
+        <p id="quiz-source" class="quiz-source">Loading quiz…</p>
+        <p id="quiz-progress" class="quiz-progress"></p>
+        <h2 id="quiz-question" class="quiz-question"></h2>
+        <div id="quiz-options" class="quiz-options"></div>
+        <p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p>
+        <p id="quiz-result" class="quiz-result" aria-live="polite"></p>
+        <button id="quiz-next" class="quiz-action" type="button" hidden>Next</button>
+        <button id="quiz-replay" class="quiz-action" type="button" hidden>Replay</button>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

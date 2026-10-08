@@ -43,6 +43,7 @@ export class Player {
   private readonly passedPauses = new Set<number>();
   private playing = false;
   private startRequested = false;
+  private endNotified = false;
   private startGeneration = 0;
   private loopScene = false;
   private activePause: PausePoint | null = null;
@@ -57,10 +58,17 @@ export class Player {
   private readonly backwardsJumps: { at: number; amount: number }[] = [];
   private lastDebugUpdateAt = 0;
 
+  replay(): void {
+    this.endNotified = false;
+    this.seekTo(0);
+    void this.togglePlayback();
+  }
+
   constructor(
     private readonly elements: PlayerElements,
     private readonly topic: Topic,
     initialTime = 0,
+    private readonly onEnded?: () => void,
   ) {
     this.engine = new Engine(elements.canvas, topic);
     const forceMute = new URLSearchParams(window.location.search).get("mute") === "1";
@@ -368,6 +376,10 @@ export class Player {
         } else if (time >= this.endTime) {
           this.pausePlayback();
           this.seekTo(this.endTime);
+          if (!this.endNotified) {
+            this.endNotified = true;
+            this.onEnded?.();
+          }
         } else {
           this.currentTime = time;
           this.lastObservedTime = time;
