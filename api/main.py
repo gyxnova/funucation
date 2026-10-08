@@ -156,10 +156,20 @@ def song_response(
         elapsed_beats += line.beats
         end = elapsed_beats * seconds_per_beat
         lyrics.append(TimedLyric(text=line.text, start=round(start, 4), end=round(end, 4), scene=line.scene))
-        if current_scene is not None and current_scene.template == line.scene and current_scene.end == round(start, 4):
+        if (
+            current_scene is not None
+            and current_scene.template == line.scene
+            and current_scene.params == line.params
+            and current_scene.end == round(start, 4)
+        ):
             current_scene.end = round(end, 4)
         else:
-            current_scene = SongScene(template=line.scene, start=round(start, 4), end=round(end, 4))
+            current_scene = SongScene(
+                template=line.scene,
+                start=round(start, 4),
+                end=round(end, 4),
+                params=line.params,
+            )
             scenes.append(current_scene)
         line_end_times.append(end)
 

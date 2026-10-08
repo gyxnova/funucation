@@ -45,6 +45,21 @@ class ValidateSongPlanTests(unittest.TestCase):
         errors = self.validate(plan)
         self.assertTrue(any("unknown scene 'made_up_scene'" in error for error in errors), errors)
 
+    def test_scene_params_are_validated_against_template_schema(self) -> None:
+        plan = copy.deepcopy(GOOD_PLAN)
+        plan["lines"][0]["scene"] = "equation_build"
+        plan["lines"][0]["params"] = {
+            "lines": [{"text": "step(z) = 1", "reveal_at": 0.2}],
+            "highlight_last": True,
+            "unexpected": "rejected",
+        }
+        errors = validate_song_plan(SongPlan.model_validate(plan), FACTS, [*SCENES, "equation_build"])
+        self.assertTrue(any("invalid params for 'equation_build'" in error for error in errors), errors)
+
+    def test_unknown_scene_menu_template_is_rejected(self) -> None:
+        errors = validate_song_plan(SongPlan.model_validate(copy.deepcopy(GOOD_PLAN)), FACTS, [*SCENES, "unknown"])
+        self.assertTrue(any("scene_menu contains unknown template(s): unknown" in error for error in errors), errors)
+
     def test_unknown_fact_id_fails_clearly(self) -> None:
         plan = copy.deepcopy(GOOD_PLAN)
         plan["lines"][0]["fact_id"] = "made_up_fact"

@@ -4,17 +4,33 @@
       "id": "perceptron",
       "title": "Perceptrons",
       "ready": true,
-      "file": "/topics/perceptron.json"
+      "file": "/topics/perceptron.json",
+      "subtopics": ["inputs and weights", "weighted sums", "thresholds", "learning rules"]
     },
     {
-      "id": "photosynthesis",
-      "title": "Photosynthesis",
-      "ready": false
+      "id": "activation_functions",
+      "title": "Activation Functions",
+      "ready": true,
+      "file": "/topics/activation_functions.json",
+      "subtopics": ["step", "sigmoid", "ReLU", "gradient learning"]
     },
     {
-      "id": "fractions",
-      "title": "Fractions",
-      "ready": false
+      "id": "gradient_descent",
+      "title": "Gradient Descent",
+      "ready": false,
+      "subtopics": ["loss surfaces", "learning rates", "gradient updates"]
+    },
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "ready": false,
+      "subtopics": ["hash functions", "collisions", "hash tables"]
+    },
+    {
+      "id": "feedback_control",
+      "title": "Feedback Control",
+      "ready": false,
+      "subtopics": ["sensors", "error signals", "proportional control"]
     }
   ]
 }

@@ -4,8 +4,10 @@ from typing import Any
 from pydantic import BaseModel
 
 try:
+    from .scene_params import TEMPLATE_PARAM_MODELS
     from .validate import MAX_SYLLABLES, MIN_SYLLABLES
 except ImportError:
+    from scene_params import TEMPLATE_PARAM_MODELS
     from validate import MAX_SYLLABLES, MIN_SYLLABLES
 
 
@@ -47,6 +49,9 @@ Rules:
 4. Write every number as words ("two point five"). No digits, symbols or formulas. Say variable names as spoken ("zee").
 5. Chorus lines may carry a one-word echo in parentheses, like "(fire!)".
 6. Never state anything FACTS does not say.
+7. Each line has a "params" object. Use the matching scene parameter schema below; known legacy scenes use an empty object. Numeric node x/y values in flow_boxes are normalized canvas coordinates from 0 to 1.
+SCENE PARAMETER SCHEMAS:
+{json.dumps({name: model.model_json_schema() for name, model in TEMPLATE_PARAM_MODELS.items()}, ensure_ascii=False, indent=2)}
 """
     user = (
         f"SCENE_MENU: {json.dumps(scenes, ensure_ascii=False)}. "

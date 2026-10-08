@@ -3,6 +3,11 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+try:
+    from .scene_params import TEMPLATE_PARAM_MODELS
+except ImportError:
+    from scene_params import TEMPLATE_PARAM_MODELS
+
 MIN_SYLLABLES = 5
 MAX_SYLLABLES = 11
 
@@ -14,6 +19,7 @@ class SongLine(BaseModel):
     beats: int = Field(ge=1, le=16)
     scene: str = Field(min_length=1)
     fact_id: str = Field(min_length=1)
+    params: dict[str, Any] = Field(default_factory=dict)
 
 
 class PredictQuestion(BaseModel):
@@ -60,6 +66,10 @@ def validate_song_plan(
             return [f"Song plan schema is invalid: {error}"]
 
     errors: list[str] = []
+    unknown_templates = sorted(set(scene_menu) - TEMPLATE_PARAM_MODELS.keys())
+    if unknown_templates:
+        errors.append(f"scene_menu contains unknown template(s): {', '.join(unknown_templates)}")
+
     if not 8 <= len(plan.lines) <= 12:
         errors.append(f"line count must be 8-12; got {len(plan.lines)}")
 
@@ -70,6 +80,11 @@ def validate_song_plan(
             errors.append(f"line {index} contains a digit; write numbers as words")
         if line.scene not in scene_menu:
             errors.append(f"line {index} has unknown scene {line.scene!r}; allowed scenes: {', '.join(scene_menu)}")
+        elif line.scene in TEMPLATE_PARAM_MODELS:
+            try:
+                TEMPLATE_PARAM_MODELS[line.scene].model_validate(line.params)
+            except ValidationError as error:
+                errors.append(f"line {index} has invalid params for {line.scene!r}: {error}")
         if line.fact_id not in fact_ids:
             errors.append(f"line {index} has unknown fact_id {line.fact_id!r}")
         syllables = estimate_syllables(line.text)

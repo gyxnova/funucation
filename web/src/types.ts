@@ -35,6 +35,7 @@ export interface CatalogEntry {
   title: string;
   ready: boolean;
   file?: string;
+  subtopics?: string[];
 }
 
 export interface Catalog {

@@ -1,0 +1,36 @@
+{
+  "topic_id": "activation_functions",
+  "title": "Activation Functions",
+  "bpm": 100,
+  "facts": [
+    {
+      "id": "step",
+      "text": "The step function is 1 when z >= 0 and 0 otherwise."
+    },
+    {
+      "id": "sigmoid_values",
+      "text": "Sigmoid values are sigmoid(-2)=0.1192, sigmoid(0)=0.5, and sigmoid(2)=0.8808."
+    },
+    {
+      "id": "relu_values",
+      "text": "ReLU is max(0,z): relu(-2)=0 and relu(3)=3."
+    },
+    {
+      "id": "step_gradient",
+      "text": "Step has zero slope almost everywhere, so gradient learning cannot use it."
+    },
+    {
+      "id": "sigmoid_shape",
+      "text": "Sigmoid is smooth but flattens at both ends."
+    },
+    {
+      "id": "relu_shape",
+      "text": "ReLU is simple and passes positive values unchanged."
+    }
+  ],
+  "scene_menu": [
+    "equation_build",
+    "curve_dot",
+    "flow_boxes"
+  ]
+}

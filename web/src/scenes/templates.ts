@@ -5,6 +5,9 @@ import { sigmoidCurve } from "./sigmoid_curve";
 import { sumNode } from "./sum_node";
 import { weightUpdate } from "./weight_update";
 import { weightsLight } from "./weights_light";
+import { equationBuild } from "./equation_build";
+import { curveDot } from "./curve_dot";
+import { flowBoxes } from "./flow_boxes";
 import { PALETTE, minimumTextSize } from "../engine/style";
 import { drawSceneLabel } from "./_layout";
 import type { SceneTemplate } from "../engine/engine";
@@ -17,6 +20,9 @@ const registeredTemplates: Record<string, SceneTemplate> = {
   gate_fire: gateFire,
   sigmoid_curve: sigmoidCurve,
   weight_update: weightUpdate,
+  equation_build: equationBuild,
+  curve_dot: curveDot,
+  flow_boxes: flowBoxes,
 };
 
 const warnedMissing = new Set<string>();

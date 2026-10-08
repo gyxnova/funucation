@@ -1,0 +1,62 @@
+{
+  "id": "activation_functions",
+  "field": "Computer science",
+  "title": "Activation Functions",
+  "bpm": 100,
+  "audio": "/audio/silence.wav",
+  "lyrics": [
+    { "text": "Step wakes at zero, then decides", "start": 0, "end": 4, "scene": "equation_build" },
+    { "text": "Sigmoid bends and softens out", "start": 4, "end": 8, "scene": "curve_dot" },
+    { "text": "ReLU lets positives pass through", "start": 8, "end": 12, "scene": "flow_boxes" }
+  ],
+  "scenes": [
+    {
+      "template": "equation_build",
+      "start": 0,
+      "end": 4,
+      "params": {
+        "lines": [
+          { "text": "step(z) = 1 when z >= 0", "reveal_at": 0.1 },
+          { "text": "step(z) = 0 when z < 0", "reveal_at": 0.52 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "curve_dot",
+      "start": 4,
+      "end": 8,
+      "params": {
+        "fn": "sigmoid",
+        "morph_from": "step",
+        "x_min": -4,
+        "x_max": 4,
+        "markers": [
+          { "x": -2, "label": "-2 = 0.1192" },
+          { "x": 0, "label": "0 = 0.5" },
+          { "x": 2, "label": "2 = 0.8808" }
+        ],
+        "caption": "smooth, but flat at both ends"
+      }
+    },
+    {
+      "template": "flow_boxes",
+      "start": 8,
+      "end": 12,
+      "params": {
+        "nodes": [
+          { "id": "step", "label": "STEP", "value": "0 or 1", "x": 0.16, "y": 0.42 },
+          { "id": "sigmoid", "label": "SIGMOID", "value": "0 to 1", "x": 0.5, "y": 0.42 },
+          { "id": "relu", "label": "RELU", "value": "max(0,z)", "x": 0.84, "y": 0.42 }
+        ],
+        "edges": [
+          { "from": "step", "to": "sigmoid" },
+          { "from": "sigmoid", "to": "relu" }
+        ],
+        "order": ["step", "sigmoid", "relu"],
+        "caption": "ReLU passes every positive input unchanged"
+      }
+    }
+  ],
+  "pauses": []
+}
