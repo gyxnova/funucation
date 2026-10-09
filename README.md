@@ -45,3 +45,7 @@ The renderer starts a temporary Vite server and writes a 1920×1080 PNG under `w
 ## Third-party
 
 `pdoom-video` by mexicat is MIT-licensed and was used only as a design reference. Its attribution and license text are recorded in [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES). No code or assets from it are included.
+## AI-generated and third-party assets
+- Song "Zee Above Zero": generated with Google Lyria (Gemini app) from our lyrics. AI-generated audio carrying Google's SynthID watermark. Google's terms state it does not claim ownership of generated content. A fallback take was made with ACE-Step (open source).
+- Lyrics: drafted with AI assistance and edited by the author, then checked against a curated fact sheet.
+- Rendering approach inspired by pdoom-video (MIT); see THIRD_PARTY_LICENSES.

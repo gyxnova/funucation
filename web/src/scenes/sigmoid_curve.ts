@@ -43,7 +43,9 @@ function drawSigmoidLabel(context: CanvasRenderingContext2D): void {
 }
 
 export const sigmoidCurve: SceneTemplate = (context, frame: Frame) => {
-  const progress = Math.min(1, Math.max(0, frame.p));
+  const progress = frame.sceneLineIndex >= 2
+    ? Math.min(1, frame.lineProgress / 0.12)
+    : frame.sceneLineIndex === 1 ? frame.lineProgress : 0;
   drawSigmoidLabel(context);
 
   drawSceneHairline(context, GRAPH.left, GRAPH.bottom, GRAPH.right, GRAPH.bottom, PALETTE.bone, 2);
@@ -78,6 +80,8 @@ export const sigmoidCurve: SceneTemplate = (context, frame: Frame) => {
   drawSceneLabel(context, "1", GRAPH.left - 42, GRAPH.top, 40, PALETTE.bone);
   drawSceneLabel(context, "0", GRAPH.left - 42, GRAPH.bottom, 40, PALETTE.bone);
   drawSceneLabel(context, "1.5", dotX, GRAPH.bottom + 92, 40, PALETTE.ember);
-  drawSceneLabel(context, "0.82", dotX + 94, dotY - 28, 40, PALETTE.bone);
+  if (frame.sceneLineIndex >= 2 && frame.lineProgress >= 0.12) {
+    drawSceneLabel(context, "0.82", dotX + 94, dotY - 28, 40, PALETTE.bone);
+  }
   drawSceneLabel(context, "smooth version of the step, output between 0 and 1", 960, 940, 28, PALETTE.bone);
 };

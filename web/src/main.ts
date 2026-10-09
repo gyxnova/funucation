@@ -74,13 +74,37 @@ async function loadTopic(entry: CatalogEntry): Promise<Topic> {
   const response = await fetch(topicFile(entry));
   if (!response.ok) throw new Error(`Could not load topic "${entry.id}" (${response.status})`);
   const data = await response.json() as Omit<Topic, "scenes"> & {
-    lyrics: (LyricLine & { scene?: string })[];
     scenes?: Topic["scenes"];
   };
-  if (data.scenes) return data as Topic;
+  const timeOffset = data.time_offset ?? 0;
+  const timeScale = data.time_scale ?? 1;
+  if (!Number.isFinite(timeOffset) || !Number.isFinite(timeScale) || timeScale <= 0) {
+    throw new Error(`Topic "${entry.id}" has invalid time_offset or time_scale metadata`);
+  }
+  const adjustTime = (time: number): number => timeOffset + time * timeScale;
+  const lyrics: LyricLine[] = data.lyrics.map((line) => ({
+    ...line,
+    start: adjustTime(line.start),
+    end: adjustTime(line.end),
+  }));
+  const pauses = data.pauses.map((pause) => ({ ...pause, at: adjustTime(pause.at) }));
+  const duration = data.duration === undefined ? undefined : adjustTime(data.duration);
+  if (data.scenes) {
+    return {
+      ...data,
+      duration,
+      lyrics,
+      pauses,
+      scenes: data.scenes.map((scene) => ({
+        ...scene,
+        start: adjustTime(scene.start),
+        end: adjustTime(scene.end),
+      })),
+    };
+  }
 
   const scenes: Topic["scenes"] = [];
-  for (const line of data.lyrics) {
+  for (const line of lyrics) {
     if (!line.scene) throw new Error(`Topic "${entry.id}" has a lyric without a scene reference`);
     const previous = scenes.at(-1);
     if (previous?.template === line.scene && previous.end === line.start) {
@@ -89,7 +113,7 @@ async function loadTopic(entry: CatalogEntry): Promise<Topic> {
       scenes.push({ template: line.scene, start: line.start, end: line.end, params: {} });
     }
   }
-  return { ...data, scenes };
+  return { ...data, duration, lyrics, pauses, scenes };
 }
 
 async function start(): Promise<void> {
@@ -222,7 +246,7 @@ async function start(): Promise<void> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic_id: topicId }),
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(30000),
       });
       if (!response.ok) throw new Error(`Quiz request failed (${response.status})`);
       const generated: unknown = await response.json();

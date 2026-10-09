@@ -190,14 +190,15 @@ canvas {
 
 .lyric-line {
   position: relative;
-  min-height: 66px;
+  min-height: 76px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 14px 96px 4px;
-  font-size: clamp(17px, 2.6vw, 25px);
+  padding: 14px clamp(16px, 5vw, 96px) 4px;
+  font-size: clamp(28px, 3vw, 36px);
   font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.15;
   text-align: center;
 }
 
@@ -209,6 +210,10 @@ canvas {
 .lyric-base {
   color: var(--bone);
   opacity: 0.35;
+}
+
+.lyric-base[data-caption="true"] {
+  opacity: 1;
 }
 
 .lyric-wipe {

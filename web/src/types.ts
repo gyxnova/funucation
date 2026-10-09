@@ -14,6 +14,10 @@ export interface Topic {
   title: string;
   bpm: number;
   audio: string;
+  duration?: number;
+  beat_offset?: number;
+  time_offset?: number;
+  time_scale?: number;
   lyrics: LyricLine[];
   scenes: {
     template: string;

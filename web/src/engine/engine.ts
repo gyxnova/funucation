@@ -17,6 +17,8 @@ export interface Frame {
   bar: number;
   beatPhase: number;
   barPhase: number;
+  sceneLineIndex: number;
+  lineProgress: number;
 }
 
 export interface TopicScene {
@@ -28,6 +30,8 @@ export interface TopicScene {
 
 export interface TopicForEngine {
   bpm: number;
+  beat_offset?: number;
+  lyrics: readonly { start: number; end: number; scene?: string }[];
   scenes: TopicScene[];
 }
 
@@ -75,6 +79,7 @@ export class Engine {
   private readonly timeline: TimelineEntry[];
   private readonly context: CanvasRenderingContext2D;
   private readonly bpm: number;
+  private readonly beatOffset: number;
   private readonly canvas: HTMLCanvasElement;
 
   constructor(
@@ -85,8 +90,10 @@ export class Engine {
     if (!context) throw new Error("Canvas 2D is not available in this browser");
     this.canvas = canvas;
     this.context = context;
+    this.topicLyrics = topic.lyrics;
     this.timeline = timelineFromTopic(topic);
     this.bpm = topic.bpm;
+    this.beatOffset = topic.beat_offset ?? 0;
     this.syncCanvasSize();
   }
 
@@ -101,12 +108,22 @@ export class Engine {
     context.clearRect(0, 0, 1920, 1080);
     drawBackground(context);
 
-    const beat = (t * this.bpm) / 60;
+    const beat = ((t - this.beatOffset) * this.bpm) / 60;
     const bar = beat / 4;
     for (const entry of this.timeline) {
       if (t < entry.start || t >= entry.end) continue;
       const template = templateRegistry[entry.template];
       if (!template) throw new Error(`Unknown scene template: ${entry.template}`);
+      const sceneLines = this.topicLyrics.filter((line) =>
+        line.scene === entry.template && line.start >= entry.start && line.start < entry.end);
+      let sceneLineIndex = -1;
+      sceneLines.forEach((line, index) => {
+        if (line.start <= t) sceneLineIndex = index;
+      });
+      const sceneLine = sceneLines[sceneLineIndex];
+      const lineProgress = sceneLine
+        ? clamp01((t - sceneLine.start) / Math.max(Number.EPSILON, sceneLine.end - sceneLine.start))
+        : 0;
       const frame: Frame = {
         t,
         lt: t - entry.start,
@@ -115,13 +132,21 @@ export class Engine {
         bar: Math.floor(bar),
         beatPhase: beat - Math.floor(beat),
         barPhase: bar - Math.floor(bar),
+        sceneLineIndex,
+        lineProgress,
       };
       context.save();
-      context.globalAlpha = crossfadeAlpha(entry, this.timeline, t);
+      const fadeOut = entry.params.fade_out;
+      const dataFade = typeof fadeOut === "number" && fadeOut > 0
+        ? clamp01((entry.end - t) / fadeOut)
+        : 1;
+      context.globalAlpha = crossfadeAlpha(entry, this.timeline, t) * dataFade;
       template(context, frame, entry.params);
       context.restore();
     }
   }
+
+  private readonly topicLyrics: TopicForEngine["lyrics"];
 
   private syncCanvasSize(): void {
     const bounds = this.canvas.getBoundingClientRect();

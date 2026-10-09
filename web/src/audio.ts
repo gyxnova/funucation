@@ -83,11 +83,13 @@ export class AudioController {
     return true;
   }
 
-  pause(): void {
+  pause(at?: number): void {
     if (this.context.state === "closed") return;
     this.startGeneration += 1;
-    this.offset = this.currentTime;
+    this.offset = at === undefined ? this.currentTime : Math.max(0, at);
     this.anchorContextTime = this.context.currentTime;
+    this.bufferSource?.stop();
+    this.bufferSource = null;
     void this.context.suspend();
   }
 

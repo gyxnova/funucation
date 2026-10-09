@@ -8,6 +8,9 @@ import { weightsLight } from "./weights_light";
 import { equationBuild } from "./equation_build";
 import { curveDot } from "./curve_dot";
 import { flowBoxes } from "./flow_boxes";
+import { endCard } from "./end_card";
+import { recap } from "./recap";
+import { titleCard } from "./title_card";
 import { PALETTE, minimumTextSize } from "../engine/style";
 import { drawSceneLabel } from "./_layout";
 import type { SceneTemplate } from "../engine/engine";
@@ -23,6 +26,9 @@ const registeredTemplates: Record<string, SceneTemplate> = {
   equation_build: equationBuild,
   curve_dot: curveDot,
   flow_boxes: flowBoxes,
+  title_card: titleCard,
+  recap: recap,
+  end_card: endCard,
 };
 
 const warnedMissing = new Set<string>();

@@ -62,6 +62,85 @@ export async function createStillRenderer(topic) {
       }
     },
 
+    async captureTextBoxes(seconds) {
+      const address = server.httpServer?.address();
+      if (!address || typeof address === "string") {
+        throw new Error("Could not determine the temporary Vite port");
+      }
+
+      const page = await browser.newPage({
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1,
+      });
+      try {
+        await page.addInitScript(() => {
+          const originalFillText = CanvasRenderingContext2D.prototype.fillText;
+          const originalClearRect = CanvasRenderingContext2D.prototype.clearRect;
+          window.__sceneTextBoxes = [];
+          CanvasRenderingContext2D.prototype.clearRect = function (x, y, width, height) {
+            if (x <= 0 && y <= 0 && width >= this.canvas.width && height >= this.canvas.height) {
+              window.__sceneTextBoxes = [];
+            }
+            return originalClearRect.call(this, x, y, width, height);
+          };
+          CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...args) {
+            if (typeof text === "string" && text.trim()) {
+              const metrics = this.measureText(text);
+              const fontSize = Number.parseFloat(this.font) || 10;
+              const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.8;
+              const descent = metrics.actualBoundingBoxDescent || fontSize * 0.2;
+              const width = metrics.width;
+              const left = this.textAlign === "center"
+                ? x - width / 2
+                : this.textAlign === "right" || this.textAlign === "end"
+                  ? x - width
+                  : x;
+              const top = this.textBaseline === "top"
+                ? y
+                : this.textBaseline === "bottom"
+                  ? y - ascent - descent
+                  : this.textBaseline === "middle"
+                    ? y - (ascent + descent) / 2
+                    : y - ascent;
+              const transform = this.getTransform();
+              const corners = [
+                [left, top],
+                [left + width, top],
+                [left, top + ascent + descent],
+                [left + width, top + ascent + descent],
+              ].map(([pointX, pointY]) => ({
+                x: transform.a * pointX + transform.c * pointY + transform.e,
+                y: transform.b * pointX + transform.d * pointY + transform.f,
+              }));
+              window.__sceneTextBoxes.push({
+                text,
+                left: Math.min(...corners.map((point) => point.x)),
+                right: Math.max(...corners.map((point) => point.x)),
+                top: Math.min(...corners.map((point) => point.y)),
+                bottom: Math.max(...corners.map((point) => point.y)),
+              });
+            }
+            return originalFillText.call(this, text, x, y, ...args);
+          };
+        });
+        const query = new URLSearchParams({
+          topic,
+          t: String(seconds),
+          paused: "1",
+          clean: "1",
+          mute: "1",
+        });
+        await page.goto(`http://127.0.0.1:${address.port}/?${query}`, {
+          waitUntil: "domcontentloaded",
+        });
+        await page.waitForFunction(() => window.__ready === true, { timeout: 20_000 });
+        await page.waitForTimeout(100);
+        return await page.evaluate(() => window.__sceneTextBoxes ?? []);
+      } finally {
+        await page.close();
+      }
+    },
+
     async saveContactSheet(cells, outputPath) {
       const columns = 4;
       const cellWidth = 480;

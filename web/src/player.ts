@@ -82,8 +82,10 @@ export class Player {
       elements.voiceToggle.disabled = forceMute || voice === null;
       this.updateVoiceButton();
     }, forceMute);
+    if (this.audio.usesAudioFile) this.voice.setEnabled(false);
     this.endTime = Math.max(
       1,
+      topic.duration ?? 0,
       ...topic.scenes.map((scene) => scene.end),
       ...topic.lyrics.map((line) => line.end),
       ...topic.pauses.map((pause) => pause.at),
@@ -194,11 +196,11 @@ export class Player {
     }
   }
 
-  private pausePlayback(): void {
+  private pausePlayback(at?: number): void {
     this.playing = false;
     this.startRequested = false;
     this.startGeneration += 1;
-    this.audio.pause();
+    this.audio.pause(at);
     this.voice.pause();
     this.elements.playButton.textContent = "Play";
   }
@@ -289,9 +291,9 @@ export class Player {
     if (!pause) return;
     this.passedPauses.add(pauseIndex);
     this.activePause = pause;
-    this.currentTime = Math.max(this.currentTime, pause.at);
-    this.audio.seek(pause.at);
-    this.pausePlayback();
+    this.currentTime = pause.at;
+    this.lastObservedTime = pause.at;
+    this.pausePlayback(pause.at);
     this.showPause(pause);
   }
 
@@ -330,9 +332,16 @@ export class Player {
     this.elements.currentTime.textContent = formatTime(this.currentTime);
     this.elements.scrubber.value = String(this.currentTime);
     const currentLine = lineAt(this.topic.lyrics, this.currentTime);
-    this.elements.lyricBase.textContent = currentLine?.text ?? "";
-    this.elements.lyricWipe.textContent = currentLine?.text ?? "";
-    this.elements.lyricWipe.style.clipPath = `inset(0 ${(1 - wipeAt(currentLine, this.currentTime)) * 100}% 0 0)`;
+    const isCaption = currentLine?.show_text === false;
+    const displayText = currentLine
+      ? isCaption ? currentLine.caption ?? "" : currentLine.text
+      : "";
+    this.elements.lyricBase.textContent = displayText;
+    this.elements.lyricBase.hidden = displayText.length === 0;
+    this.elements.lyricBase.dataset.caption = String(isCaption);
+    this.elements.lyricWipe.textContent = isCaption ? "" : displayText;
+    this.elements.lyricWipe.hidden = !currentLine || isCaption;
+    this.elements.lyricWipe.style.clipPath = `inset(0 ${(1 - wipeAt(isCaption ? null : currentLine, this.currentTime)) * 100}% 0 0)`;
   }
 
   private updateDebugOverlay(now: number, frameTime: number): void {

@@ -35,7 +35,9 @@ export const gateFire: SceneTemplate = (context, frame: Frame) => {
   const zeroX = xAt(0);
   const zX = xAt(PERCEPTRON.total);
   const firing = PERCEPTRON.total >= 0;
-  const flashing = firing && frame.beatPhase > 0.78;
+  const flashing = firing
+    && (frame.sceneLineIndex > 0 || frame.lineProgress >= 0.1)
+    && Math.sin(frame.lineProgress * Math.PI * 8) > 0;
   const graphColor = flashing ? PALETTE.ember : PALETTE.signal;
 
   drawSceneHairline(context, PERCEPTRON.sum.x + PERCEPTRON.sum.radius, y, graphLeft, y, PALETTE.bone, 2);

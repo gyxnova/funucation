@@ -11,3 +11,5 @@
 - Song "Zee Above Zero": generated with Google Lyria (Gemini app) from our lyrics. AI-generated audio carrying Google's SynthID watermark. Google's terms state it does not claim ownership of generated content. A fallback take was made with ACE-Step (open source).
 - Lyrics: drafted with AI assistance and edited by the author, then checked against a curated fact sheet.
 - Rendering approach inspired by pdoom-video (MIT); see THIRD_PARTY_LICENSES.
+
+

@@ -3,6 +3,8 @@ export interface LyricLine {
   start: number;
   end: number;
   scene?: string;
+  show_text?: boolean;
+  caption?: string;
 }
 
 export function lineByText(lines: readonly LyricLine[], text: string): LyricLine | null {

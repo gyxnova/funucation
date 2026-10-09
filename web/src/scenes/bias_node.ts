@@ -34,6 +34,6 @@ export const biasNode: SceneTemplate = (context, frame: Frame) => {
   context.arc(bias.x, bias.y, bias.radius, 0, Math.PI * 2);
   context.stroke();
   context.restore();
-  drawSceneLabel(context, "bias", bias.x, bias.y - 15, 28, PALETTE.bone);
-  drawSceneLabel(context, "-1", bias.x, bias.y + 20, 40, PALETTE.bone);
+  drawSceneLabel(context, "bias", bias.x, bias.y - 27, 28, PALETTE.bone);
+  drawSceneLabel(context, "-1", bias.x, bias.y + 27, 40, PALETTE.bone);
 };

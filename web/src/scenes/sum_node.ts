@@ -31,10 +31,19 @@ export const sumNode: SceneTemplate = (context, frame: Frame) => {
   const swell = 1 + Math.sin(frame.beatPhase * Math.PI) * 0.12;
   drawSumNode(context, swell, false);
 
-  drawCenteredTextRuns(context, [
-    { text: "z = w1x1 + w2x2 + w3x3 + b = ", size: 28, color: PALETTE.bone },
-    { text: "2.5 + (-1) = 1.5", size: 40, color: PALETTE.signal },
-  ], 960, 880);
+  const index = frame.sceneLineIndex;
+  const terms = ["0.5 x 1 = 0.5", "-1 x 0 = 0", "2 x 1 = 2"];
+  terms.forEach((term, termIndex) => {
+    if (index >= termIndex) {
+      drawCenteredTextRuns(context, [{ text: term, size: 40, color: termIndex === index ? PALETTE.signal : PALETTE.bone }], 960, 790 + termIndex * 48);
+    }
+  });
+  if (index >= 3) {
+    drawCenteredTextRuns(context, [{ text: "weighted sum = 2.5", size: 40, color: PALETTE.signal }], 960, 940);
+    if (frame.lineProgress >= 0.56) {
+      drawCenteredTextRuns(context, [{ text: "bias = -1", size: 40, color: PALETTE.ember }], 960, 1000);
+    }
+  }
   drawMainBus(context);
   drawGateStructure(context);
   drawOutput(context);

@@ -59,7 +59,12 @@ export class LyricVoice {
     if (!this.enabled || this.muted || !this.voice || currentTime <= previousTime) return;
     const crossed: number[] = [];
     this.lines.forEach((line, index) => {
-      if (!this.spokenLines.has(index) && line.start >= previousTime && line.start <= currentTime) {
+      if (
+        line.text.trim().length > 0
+        && !this.spokenLines.has(index)
+        && line.start >= previousTime
+        && line.start <= currentTime
+      ) {
         crossed.push(index);
       }
     });

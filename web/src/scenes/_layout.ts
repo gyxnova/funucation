@@ -49,11 +49,12 @@ export function drawSceneLabel(
   y: number,
   size: number,
   color: string,
+  align: CanvasTextAlign = "center",
 ): void {
   context.save();
   const effectiveSize = minimumTextSize(text, size);
   context.font = `500 ${effectiveSize}px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace`;
-  context.textAlign = "center";
+  context.textAlign = align;
   context.textBaseline = "middle";
   context.fillStyle = color;
   context.fillText(text, x, y);
@@ -140,7 +141,7 @@ export function drawSumNode(
     PALETTE.bone,
   );
   if (label) {
-    drawMonoLabel(context, "sum", PERCEPTRON.sum.x, PERCEPTRON.sum.y + 108, 28, PALETTE.graphite);
+    drawMonoLabel(context, "sum", PERCEPTRON.sum.x - 112, PERCEPTRON.sum.y + 108, 28, PALETTE.graphite);
   }
 }
 

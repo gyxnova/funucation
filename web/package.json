@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "still": "node scripts/still.mjs",
-    "sheet": "node scripts/sheet.mjs"
+    "sheet": "node scripts/sheet.mjs",
+    "check:text-overlaps": "node scripts/check-text-overlaps.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0",

@@ -31,13 +31,18 @@ function drawUpdateLabel(
   drawSceneLabel(context, text, align === "center" ? x : x + width / 2, y, effectiveSize, color);
 }
 
-export const weightUpdate: SceneTemplate = (context, frame: Frame) => {
-  const progress = Math.min(1, Math.max(0, frame.p));
+export const weightUpdate: SceneTemplate = (context, frame: Frame, params) => {
+  const finalState = params.final_state === true;
+  const progress = finalState || frame.sceneLineIndex >= 2
+    ? 1
+    : frame.sceneLineIndex === 1 ? Math.min(1, Math.max(0, frame.lineProgress)) : 0;
   const currentBias = PERCEPTRON.bias.value + (UPDATED_BIAS - PERCEPTRON.bias.value) * progress;
   const weights = PERCEPTRON.inputs.map((input, index) =>
     input.weight + ((UPDATED_WEIGHTS[index] ?? input.weight) - input.weight) * progress);
 
-  drawSceneLabel(context, "target 0, got 1, error -1, lr 1", 960, 120, 40, PALETTE.ember);
+  if (frame.sceneLineIndex >= 0 || finalState) {
+    drawSceneLabel(context, "target 0, got 1, error -1, lr 1", 960, 120, 40, PALETTE.ember);
+  }
   PERCEPTRON.inputs.forEach((input, index) => {
     const startX = input.x + input.radius;
     const startY = input.y;
@@ -54,15 +59,28 @@ export const weightUpdate: SceneTemplate = (context, frame: Frame) => {
       weight < 0 ? PALETTE.dim : PALETTE.bone,
       1.5 + Math.abs(weight) * 2.2,
     );
-    if (index === 0 || index === 2) {
+    if ((frame.sceneLineIndex >= 1 || finalState) && (index === 0 || index === 2)) {
       const labelY = index === 0 ? 270 : 720;
       drawUpdateLabel(context, `w${index + 1}: ${input.weight} -> ${UPDATED_WEIGHTS[index]}`, 670, labelY, 40, PALETTE.bone);
       drawUpdateLabel(context, "w = w + lr*error*x", 670, labelY + 42, 28, PALETTE.graphite);
-    } else {
-      drawUpdateLabel(context, "x2 = 0", 430, 440, 40, PALETTE.graphite);
-      drawUpdateLabel(context, "so no change", 430, 480, 28, PALETTE.graphite);
+    }
+    if ((frame.sceneLineIndex >= 3 || finalState) && index === 1) {
+      drawUpdateLabel(context, "w2 unchanged (x2 = 0)", 650, 390, 40, PALETTE.graphite);
     }
   });
+  if (frame.sceneLineIndex >= 2 || finalState) {
+    PERCEPTRON.inputs.forEach((input, index) => {
+      if (index !== 0 && index !== 2) return;
+      context.save();
+      context.strokeStyle = PALETTE.signal;
+      context.lineWidth = 5;
+      context.beginPath();
+      context.arc(input.x, input.y, input.radius + 12, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+    });
+    drawSceneLabel(context, "active inputs: x1, x3", 960, 170, 40, PALETTE.signal);
+  }
   drawDataInputs(context, frame);
   drawSumNode(context, 1, false);
 
@@ -78,9 +96,11 @@ export const weightUpdate: SceneTemplate = (context, frame: Frame) => {
   context.restore();
   drawSceneLabel(context, "bias", bias.x, bias.y - 14, 28, PALETTE.bone);
   drawSceneLabel(context, String(Number(currentBias.toFixed(1))), bias.x, bias.y + 20, 40, PALETTE.signal);
-  drawUpdateLabel(context, "b update", 1000, bias.y - 56, 28, PALETTE.graphite, "left");
-  drawUpdateLabel(context, "-1 -> -2", 1000, bias.y - 18, 40, PALETTE.bone, "left");
-  drawUpdateLabel(context, "b = b + lr*error", 1000, bias.y + 24, 28, PALETTE.graphite, "left");
+  if (frame.sceneLineIndex >= 1) {
+    drawUpdateLabel(context, "b update", 1000, bias.y - 56, 28, PALETTE.graphite, "left");
+    drawUpdateLabel(context, "-1 -> -2", 1000, bias.y - 18, 40, PALETTE.bone, "left");
+    drawUpdateLabel(context, "b = b + lr*error", 1000, bias.y + 24, 28, PALETTE.graphite, "left");
+  }
 
   const gate = PERCEPTRON.gate;
   const left = gate.x - gate.width / 2;
@@ -103,7 +123,9 @@ export const weightUpdate: SceneTemplate = (context, frame: Frame) => {
     + UPDATED_WEIGHTS[1] * PERCEPTRON.inputs[1].value
     + UPDATED_WEIGHTS[2] * PERCEPTRON.inputs[2].value;
   const updatedTotal = updatedWeightedSum + UPDATED_BIAS;
-  drawSceneLabel(context, "weighted sum = -0.5 + 0 + 1 = 0.5", 960, 930, 40, PALETTE.bone);
-  drawSceneLabel(context, "z = 0.5 + (-2) = -1.5: no fire", 960, 988, 40, PALETTE.signal);
-  drawSceneLabel(context, `sigmoid reads ${(1 / (1 + Math.exp(-updatedTotal))).toFixed(2)}`, 960, 1042, 40, PALETTE.graphite);
+  if (frame.sceneLineIndex >= 3 || finalState) {
+    drawSceneLabel(context, "weighted sum = -0.5 + 0 + 1 = 0.5", 960, 930, 40, PALETTE.bone);
+    drawSceneLabel(context, "z = 0.5 + (-2) = -1.5 -> no fire", 960, 988, 40, PALETTE.signal);
+    drawSceneLabel(context, `sigmoid reads ${(1 / (1 + Math.exp(-updatedTotal))).toFixed(2)}`, 960, 1042, 40, PALETTE.graphite);
+  }
 };
