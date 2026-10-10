@@ -377,6 +377,36 @@ input[type="range"] {
   font-weight: 800;
 }
 
+.quiz-review {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.quiz-review-item {
+  border-top: 1px solid var(--dim);
+  padding-top: 16px;
+}
+
+.quiz-review-item p {
+  margin: 0 0 12px;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.quiz-secondary {
+  border-color: var(--dim);
+  color: var(--bone);
+  background: transparent;
+}
+
+.quiz-action:disabled {
+  border-color: var(--dim);
+  color: var(--graphite);
+  background: var(--ink);
+  cursor: default;
+}
+
 [hidden] {
   display: none !important;
 }

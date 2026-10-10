@@ -2,33 +2,81 @@
   "id": "activation_functions",
   "field": "Computer science",
   "title": "Activation Functions",
-  "bpm": 100,
-  "audio": "/audio/silence.wav",
+  "audio": "/audio/bend-the-line.mp3",
+  "duration": 153.9,
+  "bpm": 103.4,
+  "beat_offset": 0.53,
+  "time_offset": 0,
+  "time_scale": 1,
   "lyrics": [
-    { "text": "Step wakes at zero, then decides", "start": 0, "end": 4, "scene": "equation_build" },
-    { "text": "Sigmoid bends and softens out", "start": 4, "end": 8, "scene": "curve_dot" },
-    { "text": "ReLU lets positives pass through", "start": 8, "end": 12, "scene": "flow_boxes" }
+    { "text": "Zee goes in and the answer comes out,", "start": 6.12, "end": 12.02, "scene": "equation_build" },
+    { "text": "A function bends it, that's what it's about,", "start": 12.44, "end": 14.62, "scene": "equation_build" },
+    { "text": "Step was a switch, just zero or one,", "start": 14.94, "end": 16.94, "scene": "curve_dot" },
+    { "text": "No slope to learn from, so learning's undone.", "start": 17.12, "end": 19.36, "scene": "curve_dot" },
+    { "text": "Sigmoid squashes into zero to one,", "start": 19.88, "end": 22.12, "scene": "curve_dot" },
+    { "text": "Great for a yes-or-no, the job gets done,", "start": 22.12, "end": 24.0, "scene": "curve_dot" },
+    { "text": "But flat at the ends, the slope fades away,", "start": 24.24, "end": 26.42, "scene": "equation_build" },
+    { "text": "Learning gets slow, that's the price you pay.", "start": 26.42, "end": 28.6, "scene": "equation_build" },
+    { "text": "Tanh runs from minus one up to one,", "start": 28.68, "end": 31.08, "scene": "equation_build" },
+    { "text": "Centered on zero, so training can run,", "start": 31.08, "end": 33.38, "scene": "equation_build" },
+    { "text": "It lives in recurrent cells, remembering the past,", "start": 33.38, "end": 35.8, "scene": "equation_build" },
+    { "text": "But it flattens at the ends, so slopes don't last.", "start": 35.8, "end": 38.26, "scene": "equation_build" },
+    { "text": "Bend the line, bend the line,", "start": 38.68, "end": 41.92, "scene": "flow_boxes" },
+    { "text": "Zee goes in and the answer comes out fine,", "start": 42.98, "end": 46.7, "scene": "flow_boxes" },
+    { "text": "Same zee in, a different curve,", "start": 47.68, "end": 51.54, "scene": "flow_boxes" },
+    { "text": "Pick the bend that the job deserves.", "start": 52.18, "end": 55.68, "scene": "flow_boxes" },
+    { "text": "ReLU is a ramp, it's simple and quick,", "start": 56.84, "end": 59.6, "scene": "curve_dot" },
+    { "text": "Negative goes to zero, positives stick,", "start": 59.6, "end": 61.7, "scene": "curve_dot" },
+    { "text": "Hidden layers love it, fast to compute,", "start": 61.7, "end": 64.04, "scene": "equation_build" },
+    { "text": "But stuck at zero, a neuron goes mute.", "start": 64.04, "end": 66.48, "scene": "equation_build" },
+    { "text": "Leaky lets a little through, a small slope below,", "start": 66.94, "end": 69.1, "scene": "equation_build" },
+    { "text": "So the neuron never dies, it can still grow,", "start": 69.1, "end": 71.24, "scene": "equation_build" },
+    { "text": "PReLU learns that slope while it trains,", "start": 71.66, "end": 73.76, "scene": "equation_build" },
+    { "text": "More freedom, more parameters, more to maintain.", "start": 73.76, "end": 75.72, "scene": "equation_build" },
+    { "text": "ELU slides smoothly under zero,", "start": 94.17, "end": 96.6, "scene": "equation_build" },
+    { "text": "Keeps averages near zero, a gentle hero,", "start": 96.6, "end": 99.16, "scene": "equation_build" },
+    { "text": "It needs an exponential, so it's slower to run,", "start": 99.56, "end": 102.82, "scene": "equation_build" },
+    { "text": "But no dead neurons, the gradient lives on.", "start": 102.82, "end": 106.08, "scene": "equation_build" },
+    { "text": "Swish is zee times sigmoid of zee,", "start": 106.3, "end": 108.4, "scene": "equation_build" },
+    { "text": "Smooth with a little dip, as you can see,", "start": 108.4, "end": 110.46, "scene": "equation_build" },
+    { "text": "It can beat ReLU when the network is deep,", "start": 110.48, "end": 112.42, "scene": "equation_build" },
+    { "text": "A bit more to compute, but the gains you keep.", "start": 112.42, "end": 114.4, "scene": "equation_build" },
+    { "text": "Sigmoid for the last layer when the answer's yes or no,", "start": 114.4, "end": 117.4, "scene": "flow_boxes" },
+    { "text": "Tanh inside recurrent cells, where the memories flow,", "start": 117.4, "end": 120.6, "scene": "flow_boxes" },
+    { "text": "ReLU for hidden layers, it's the default, it's true,", "start": 120.6, "end": 124.72, "scene": "flow_boxes" },
+    { "text": "Leaky or Swish when the plain ones won't do.", "start": 125.06, "end": 127.24, "scene": "flow_boxes" },
+    { "text": "Bend the line, bend the line,", "start": 127.7, "end": 131.3, "scene": "flow_boxes" },
+    { "text": "Zee goes in and the answer comes out fine,", "start": 132.4, "end": 136.08, "scene": "flow_boxes" },
+    { "text": "Same zee in, a different curve,", "start": 137.04, "end": 140.8, "scene": "flow_boxes" },
+    { "text": "Pick the bend that the job deserves.", "start": 141.66, "end": 145.08, "scene": "flow_boxes" }
   ],
   "scenes": [
+    { "template": "title_card", "start": 0, "end": 6.12, "params": { "title": "Bend the Line", "subtitle": "learn-by-song" } },
     {
       "template": "equation_build",
-      "start": 0,
-      "end": 4,
+      "start": 6.12,
+      "end": 14.62,
       "params": {
         "lines": [
-          { "text": "step(z) = 1 when z >= 0", "reveal_at": 0.1 },
-          { "text": "step(z) = 0 when z < 0", "reveal_at": 0.52 }
+          { "text": "z = w1x1 + w2x2 + w3x3 + b", "reveal_at": 0.05 },
+          { "text": "output = f(z)", "reveal_at": 0.52 }
         ],
         "highlight_last": true
       }
     },
     {
       "template": "curve_dot",
-      "start": 4,
-      "end": 8,
+      "start": 14.94,
+      "end": 19.36,
+      "params": { "fn": "step", "morph_from": null, "x_min": -4, "x_max": 4, "markers": [], "caption": "step: hard threshold" }
+    },
+    {
+      "template": "curve_dot",
+      "start": 19.88,
+      "end": 24.0,
       "params": {
         "fn": "sigmoid",
-        "morph_from": "step",
+        "morph_from": null,
         "x_min": -4,
         "x_max": 4,
         "markers": [
@@ -36,27 +84,250 @@
           { "x": 0, "label": "0 = 0.5" },
           { "x": 2, "label": "2 = 0.8808" }
         ],
-        "caption": "smooth, but flat at both ends"
+        "caption": "sigmoid(z)"
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 24.24,
+      "end": 28.6,
+      "params": {
+        "lines": [
+          { "text": "range 0 to 1", "reveal_at": 0.05 },
+          { "text": "good for: yes-or-no output", "reveal_at": 0.36 },
+          { "text": "con: flat at the ends", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 28.68,
+      "end": 33.38,
+      "params": {
+        "lines": [
+          { "text": "tanh: -1 to 1", "reveal_at": 0.05 },
+          { "text": "tanh(-2) = -0.9640", "reveal_at": 0.36 },
+          { "text": "centered on zero", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 33.38,
+      "end": 38.26,
+      "params": {
+        "lines": [
+          { "text": "used in recurrent cells", "reveal_at": 0.05 },
+          { "text": "con: flat at the ends", "reveal_at": 0.52 }
+        ],
+        "highlight_last": true
       }
     },
     {
       "template": "flow_boxes",
-      "start": 8,
-      "end": 12,
+      "start": 38.68,
+      "end": 55.68,
       "params": {
         "nodes": [
-          { "id": "step", "label": "STEP", "value": "0 or 1", "x": 0.16, "y": 0.42 },
-          { "id": "sigmoid", "label": "SIGMOID", "value": "0 to 1", "x": 0.5, "y": 0.42 },
-          { "id": "relu", "label": "RELU", "value": "max(0,z)", "x": 0.84, "y": 0.42 }
+          { "id": "z", "label": "Z", "value": "2", "x": 0.5, "y": 0.18 },
+          { "id": "step", "label": "STEP", "value": "1", "x": 0.18, "y": 0.62 },
+          { "id": "sigmoid", "label": "SIGMOID", "value": "0.8808", "x": 0.5, "y": 0.62 },
+          { "id": "tanh", "label": "TANH", "value": "0.9640", "x": 0.82, "y": 0.62 }
         ],
         "edges": [
-          { "from": "step", "to": "sigmoid" },
-          { "from": "sigmoid", "to": "relu" }
+          { "from": "z", "to": "step" },
+          { "from": "z", "to": "sigmoid" },
+          { "from": "z", "to": "tanh" }
         ],
-        "order": ["step", "sigmoid", "relu"],
-        "caption": "ReLU passes every positive input unchanged"
+        "order": ["z", "step"],
+        "caption": "same z = 2, different answers"
       }
-    }
+    },
+    {
+      "template": "curve_dot",
+      "start": 56.84,
+      "end": 61.7,
+      "params": {
+        "fn": "relu",
+        "morph_from": null,
+        "x_min": -4,
+        "x_max": 4,
+        "markers": [
+          { "x": -2, "label": "-2 = 0" },
+          { "x": 3, "label": "3 = 3" }
+        ],
+        "caption": "relu(z) = max(0, z)"
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 61.7,
+      "end": 66.48,
+      "params": {
+        "lines": [
+          { "text": "max(0, z)", "reveal_at": 0.05 },
+          { "text": "good for: hidden layers, fast", "reveal_at": 0.36 },
+          { "text": "con: stuck at zero, a dead neuron", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 66.94,
+      "end": 71.24,
+      "params": {
+        "lines": [
+          { "text": "z if z > 0 else 0.1 z", "reveal_at": 0.05 },
+          { "text": "leaky(-2) = -0.2", "reveal_at": 0.36 },
+          { "text": "con: the slope is a setting", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 71.66,
+      "end": 75.72,
+      "params": {
+        "lines": [
+          { "text": "PReLU: slope is learned", "reveal_at": 0.05 },
+          { "text": "example slope 0.25: f(-2) = -0.5", "reveal_at": 0.36 },
+          { "text": "con: more parameters", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "flow_boxes",
+      "start": 76.4,
+      "end": 94.17,
+      "params": {
+        "nodes": [
+          { "id": "z", "label": "Z", "value": "-2", "x": 0.5, "y": 0.18 },
+          { "id": "relu", "label": "RELU", "value": "0", "x": 0.2, "y": 0.62 },
+          { "id": "leaky", "label": "LEAKY", "value": "-0.2", "x": 0.5, "y": 0.62 },
+          { "id": "prelu", "label": "PRELU", "value": "-0.5", "x": 0.8, "y": 0.62 }
+        ],
+        "edges": [
+          { "from": "z", "to": "relu" },
+          { "from": "z", "to": "leaky" },
+          { "from": "z", "to": "prelu" }
+        ],
+        "order": ["z", "relu"],
+        "caption": "same z = -2, three answers"
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 94.17,
+      "end": 99.16,
+      "params": {
+        "lines": [
+          { "text": "z if z > 0 else e^z - 1", "reveal_at": 0.05 },
+          { "text": "elu(-2) = -0.8647", "reveal_at": 0.52 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 99.56,
+      "end": 106.08,
+      "params": {
+        "lines": [
+          { "text": "smooth, no dead neurons", "reveal_at": 0.05 },
+          { "text": "con: needs an exponential", "reveal_at": 0.52 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 106.3,
+      "end": 110.46,
+      "params": {
+        "lines": [
+          { "text": "swish(z) = z x sigmoid(z)", "reveal_at": 0.05 },
+          { "text": "swish(2) = 1.7616", "reveal_at": 0.36 },
+          { "text": "swish(-2) = -0.2384", "reveal_at": 0.68 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "equation_build",
+      "start": 110.48,
+      "end": 114.4,
+      "params": {
+        "lines": [
+          { "text": "can beat ReLU in deep nets", "reveal_at": 0.05 },
+          { "text": "con: costs more to compute", "reveal_at": 0.52 }
+        ],
+        "highlight_last": true
+      }
+    },
+    {
+      "template": "flow_boxes",
+      "start": 114.4,
+      "end": 127.24,
+      "params": {
+        "nodes": [
+          { "id": "yes_no", "label": "last layer", "value": "yes / no", "x": 0.25, "y": 0.18 },
+          { "id": "sigmoid", "label": "SIGMOID", "value": "0 to 1", "x": 0.75, "y": 0.18 },
+          { "id": "recurrent", "label": "recurrent cells", "value": "memory", "x": 0.25, "y": 0.4 },
+          { "id": "tanh", "label": "TANH", "value": "-1 to 1", "x": 0.75, "y": 0.4 },
+          { "id": "hidden", "label": "hidden layers", "value": "fast", "x": 0.25, "y": 0.62 },
+          { "id": "relu", "label": "RELU", "value": "max(0, z)", "x": 0.75, "y": 0.62 },
+          { "id": "dead", "label": "dead neurons?", "value": "negative", "x": 0.25, "y": 0.84 },
+          { "id": "leaky_swish", "label": "LEAKY / SWISH", "value": "allow neg.", "x": 0.75, "y": 0.84 }
+        ],
+        "edges": [
+          { "from": "yes_no", "to": "sigmoid" },
+          { "from": "recurrent", "to": "tanh" },
+          { "from": "hidden", "to": "relu" },
+          { "from": "dead", "to": "leaky_swish" }
+        ],
+        "order": [],
+        "highlight_edges_by_line": [0, 1, 2, 3],
+        "caption": "choose the bend for the job"
+      }
+    },
+    {
+      "template": "flow_boxes",
+      "start": 127.7,
+      "end": 145.08,
+      "params": {
+        "nodes": [
+          { "id": "z", "label": "Z", "value": "2", "x": 0.5, "y": 0.16 },
+          { "id": "step", "label": "STEP", "value": "1", "x": 0.12, "y": 0.61 },
+          { "id": "sigmoid", "label": "SIGMOID", "value": "0.8808", "x": 0.31, "y": 0.61 },
+          { "id": "tanh", "label": "TANH", "value": "0.9640", "x": 0.5, "y": 0.61 },
+          { "id": "relu", "label": "RELU", "value": "2", "x": 0.69, "y": 0.61 },
+          { "id": "swish", "label": "SWISH", "value": "1.7616", "x": 0.88, "y": 0.61 }
+        ],
+        "edges": [
+          { "from": "z", "to": "step" },
+          { "from": "z", "to": "sigmoid" },
+          { "from": "z", "to": "tanh" },
+          { "from": "z", "to": "relu" },
+          { "from": "z", "to": "swish" }
+        ],
+        "order": ["z", "step"],
+        "caption": "same z = 2, different answers"
+      }
+    },
+    { "template": "end_card", "start": 145.08, "end": 153.9, "params": { "title": "Bend the Line" } }
   ],
-  "pauses": []
+  "pauses": [
+    {
+      "at": 76.4,
+      "question": "At z = -2, ReLU outputs 0. What does Leaky ReLU with slope 0.1 output?",
+      "options": ["0", "-0.2", "-2", "0.2"],
+      "correct": 1,
+      "explain": "0.1 x (-2) = -0.2"
+    }
+  ]
 }

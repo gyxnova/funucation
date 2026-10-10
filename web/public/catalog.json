@@ -4,6 +4,7 @@
       "id": "perceptron",
       "title": "Perceptrons",
       "ready": true,
+      "status": "ready",
       "file": "/topics/perceptron.json",
       "subtopics": ["inputs and weights", "weighted sums", "thresholds", "learning rules"]
     },
@@ -11,6 +12,7 @@
       "id": "activation_functions",
       "title": "Activation Functions",
       "ready": true,
+      "status": "ready",
       "file": "/topics/activation_functions.json",
       "subtopics": ["step", "sigmoid", "ReLU", "gradient learning"]
     },

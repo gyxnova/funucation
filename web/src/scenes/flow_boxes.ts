@@ -20,6 +20,7 @@ interface FlowBoxesParams {
   edges: FlowEdge[];
   order: string[];
   caption: string;
+  highlight_edges_by_line?: number[];
 }
 
 const BOX_WIDTH = 280;
@@ -30,6 +31,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isFlowBoxesParams(params: Record<string, unknown>): params is Record<string, unknown> & FlowBoxesParams {
+  if (!Array.isArray(params.edges)) return false;
+  const edgeCount = params.edges.length;
   return Array.isArray(params.nodes)
     && params.nodes.every((node) =>
       isRecord(node)
@@ -43,6 +46,10 @@ function isFlowBoxesParams(params: Record<string, unknown>): params is Record<st
       isRecord(edge) && typeof edge.from === "string" && typeof edge.to === "string")
     && Array.isArray(params.order)
     && params.order.every((id) => typeof id === "string")
+    && (params.highlight_edges_by_line === undefined
+      || (Array.isArray(params.highlight_edges_by_line)
+        && params.highlight_edges_by_line.every((index) =>
+          Number.isInteger(index) && index >= 0 && index < edgeCount)))
     && typeof params.caption === "string";
 }
 
@@ -70,13 +77,18 @@ export const flowBoxes: SceneTemplate = (context, frame, params) => {
   }
 
   const nodes = new Map(params.nodes.map((node) => [node.id, { ...node, point: canvasPoint(node) }]));
-  params.edges.forEach((edge) => {
+  const highlightedEdgeIndex = params.highlight_edges_by_line?.[frame.sceneLineIndex];
+  params.edges.forEach((edge, index) => {
     const from = nodes.get(edge.from);
     const to = nodes.get(edge.to);
     if (!from || !to) throw new Error(`flow_boxes edge refers to an unknown node: ${edge.from} -> ${edge.to}`);
     const start = edgePoint(from.point, to.point);
     const end = edgePoint(to.point, from.point);
-    drawArrow(context, start.x, start.y, end.x, end.y, PALETTE.bone, 2, 16);
+    if (index === highlightedEdgeIndex) {
+      drawArrow(context, start.x, start.y, end.x, end.y, PALETTE.signal, 5, 16);
+    } else {
+      drawArrow(context, start.x, start.y, end.x, end.y, PALETTE.bone, 2, 16);
+    }
   });
 
   const pathSteps = params.order.length - 1;
@@ -95,7 +107,7 @@ export const flowBoxes: SceneTemplate = (context, frame, params) => {
     if (reached) drawSceneLabel(context, node.value, x, y + 28, 40, PALETTE.signal);
   });
 
-  if (frame.p < 1) {
+  if (pathSteps > 0 && frame.p < 1) {
     const segmentIndex = Math.min(pathSteps - 1, Math.floor(routeProgress));
     const segmentProgress = routeProgress - segmentIndex;
     const fromNode = params.order[segmentIndex];

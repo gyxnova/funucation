@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "still": "node scripts/still.mjs",
     "sheet": "node scripts/sheet.mjs",
-    "check:text-overlaps": "node scripts/check-text-overlaps.mjs"
+    "check:text-overlaps": "node scripts/check-text-overlaps.mjs",
+    "quizcheck": "node scripts/quizcheck.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0",

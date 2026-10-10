@@ -186,7 +186,7 @@ export function drawHairline(
   y1: number,
   x2: number,
   y2: number,
-  color = PALETTE.bone,
+  color: string = PALETTE.bone,
   width = 2,
 ): void {
   context.save();
@@ -206,7 +206,7 @@ export function drawArrow(
   y1: number,
   x2: number,
   y2: number,
-  color = PALETTE.bone,
+  color: string = PALETTE.bone,
   width = 2,
   headSize = 14,
 ): void {

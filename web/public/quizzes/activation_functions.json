@@ -1,0 +1,63 @@
+{
+  "topic_id": "activation_functions",
+  "questions": [
+    {
+      "question": "A neuron's total is z = 2. What does sigmoid output, to 2 decimals?",
+      "options": ["0.12", "0.50", "0.88", "2.00"],
+      "correct_index": 2,
+      "explanation": "sigmoid(2) = 1 / (1 + e^-2) = 0.8808",
+      "seek": 19.88
+    },
+    {
+      "question": "z = -3. What does ReLU output?",
+      "options": ["-3", "3", "0.05", "0"],
+      "correct_index": 3,
+      "explanation": "ReLU = max(0, z) = max(0, -3) = 0",
+      "seek": 56.84
+    },
+    {
+      "question": "z = -5. What does Leaky ReLU with slope 0.1 output?",
+      "options": ["0", "-0.5", "-5", "0.5"],
+      "correct_index": 1,
+      "explanation": "0.1 x (-5) = -0.5",
+      "seek": 66.94
+    },
+    {
+      "question": "Which function can never output a value below -1 or above 1?",
+      "options": ["Sigmoid", "ReLU", "Tanh", "Swish"],
+      "correct_index": 2,
+      "explanation": "tanh ranges from -1 to 1; sigmoid only from 0 to 1",
+      "seek": 28.68
+    },
+    {
+      "question": "A ReLU neuron always gets z = -4, so it outputs 0 with no slope and stops learning. What is this called?",
+      "options": ["Overfitting", "Dying ReLU", "Saturation at one", "Exploding output"],
+      "correct_index": 1,
+      "explanation": "Stuck at zero with no slope, the neuron is dead: a dying ReLU",
+      "seek": 56.84
+    },
+    {
+      "question": "Which function computes z times sigmoid(z)?",
+      "options": ["ELU", "PReLU", "Tanh", "Swish"],
+      "correct_index": 3,
+      "explanation": "swish(z) = z x sigmoid(z)",
+      "seek": 106.3
+    },
+    {
+      "question": "ELU at z = -2 equals e^-2 - 1. About what value is that?",
+      "options": ["-0.14", "-0.86", "-2", "0"],
+      "correct_index": 1,
+      "explanation": "e^-2 - 1 = 0.1353 - 1 = -0.8647",
+      "seek": 94.17
+    },
+    {
+      "question": "Which function is the usual default for hidden layers?",
+      "options": ["ReLU", "Sigmoid", "Step", "Tanh"],
+      "correct_index": 0,
+      "explanation": "ReLU is cheap and does not flatten for positive inputs",
+      "seek": 56.84
+    }
+  ],
+  "model_used": "curated",
+  "repairs_used": 0
+}

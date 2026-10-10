@@ -2,6 +2,7 @@ import "./style.css";
 import { Player } from "./player";
 import type { LyricLine } from "./engine/lyrics";
 import type { Catalog, CatalogEntry, GeneratedSong, QuizResponse, Topic } from "./types";
+import { generateQuestions } from "./quiz/gen";
 
 declare global {
   interface Window {
@@ -133,7 +134,9 @@ async function start(): Promise<void> {
   const catalogResponse = await fetch("/catalog.json");
   if (!catalogResponse.ok) throw new Error(`Could not load topic catalog (${catalogResponse.status})`);
   const catalog = await catalogResponse.json() as Catalog;
-  const readyTopics = catalog.topics.filter((topic) => topic.ready);
+  const topicIsReady = (topic: CatalogEntry): boolean =>
+    topic.status === "ready" || (topic.status === undefined && topic.ready);
+  const readyTopics = catalog.topics.filter(topicIsReady);
 
   catalog.topics.forEach((topic) => {
     const option = document.createElement("option");
@@ -153,12 +156,17 @@ async function start(): Promise<void> {
   const quizOptions = required(document.querySelector<HTMLElement>("#quiz-options"), "#quiz-options");
   const quizFeedback = required(document.querySelector<HTMLElement>("#quiz-feedback"), "#quiz-feedback");
   const quizResult = required(document.querySelector<HTMLElement>("#quiz-result"), "#quiz-result");
+  const quizReview = required(document.querySelector<HTMLElement>("#quiz-review"), "#quiz-review");
   const quizNext = required(document.querySelector<HTMLButtonElement>("#quiz-next"), "#quiz-next");
+  const quizNextLesson = required(document.querySelector<HTMLButtonElement>("#quiz-next-lesson"), "#quiz-next-lesson");
   const quizReplay = required(document.querySelector<HTMLButtonElement>("#quiz-replay"), "#quiz-replay");
   let quiz: QuizResponse | null = null;
   let quizIndex = 0;
   let quizScore = 0;
   let questionAnswered = false;
+  let missedQuestions: QuizResponse["questions"] = [];
+  let prefetchedQuiz: { topicId: string; response: QuizResponse | null; failure: string | null } | null = null;
+  let nextLesson: CatalogEntry | null = null;
 
   const isQuizResponse = (value: unknown): value is QuizResponse => {
     if (typeof value !== "object" || value === null) return false;
@@ -169,14 +177,119 @@ async function start(): Promise<void> {
       && Array.isArray(candidate.questions)
       && candidate.questions.length > 0
       && candidate.questions.every((question) =>
-        typeof question.question === "string"
+        typeof question === "object"
+        && question !== null
+        && typeof question.question === "string"
         && Array.isArray(question.options)
         && question.options.length >= 2
         && question.options.every((option) => typeof option === "string")
         && Number.isInteger(question.correct_index)
         && question.correct_index >= 0
         && question.correct_index < question.options.length
-        && typeof question.explanation === "string");
+        && typeof question.explanation === "string"
+        && (question.seek === undefined || (typeof question.seek === "number" && Number.isFinite(question.seek) && question.seek >= 0)));
+  };
+
+  const questionId = (question: QuizResponse["questions"][number]): string => {
+    if (question.id) return question.id;
+    let hash = 2166136261;
+    for (const character of question.question) {
+      hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+    }
+    return `api:${(hash >>> 0).toString(16)}`;
+  };
+
+  const sceneForQuestion = (question: string): NonNullable<QuizResponse["questions"][number]["scene"]> => {
+    if (/update|updated|learning rate/i.test(question)) return "weight_update";
+    if (/sigmoid/i.test(question)) return "sigmoid_curve";
+    if (/fire|threshold|step rule|output/i.test(question)) return "gate_fire";
+    return "sum_node";
+  };
+
+  const previousQuestionIds = (topicId: string): string[] => {
+    try {
+      const stored = localStorage.getItem(`quiz-question-ids:${topicId}`);
+      if (!stored) return [];
+      const value: unknown = JSON.parse(stored);
+      if (!Array.isArray(value) || !value.every((id) => typeof id === "string")) {
+        throw new Error(`Stored previous quiz ids for "${topicId}" are invalid`);
+      }
+      return value;
+    } catch (error) {
+      console.warn(`Could not read previous quiz ids: ${String(error)}`);
+      return [];
+    }
+  };
+
+  const fetchQuiz = async (topicId: string): Promise<QuizResponse> => {
+    const response = await fetch("/api/quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic_id: topicId }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!response.ok) throw new Error(`Quiz request failed (${response.status})`);
+    const generated: unknown = await response.json();
+    if (!isQuizResponse(generated) || generated.topic_id !== topicId) {
+      throw new Error("Quiz response did not match the expected format");
+    }
+    return generated;
+  };
+
+  const startQuizPrefetch = (topicId: string): void => {
+    if (topicId === "activation_functions") return;
+    const request = { topicId, response: null as QuizResponse | null, failure: null as string | null };
+    prefetchedQuiz = request;
+    void fetchQuiz(topicId).then((response) => {
+      request.response = response;
+    }).catch((error: unknown) => {
+      request.failure = error instanceof Error ? error.message : String(error);
+      console.warn(`Quiz prefetch failed for "${topicId}": ${request.failure}`);
+    });
+  };
+
+  const shuffleQuestionOptions = (
+    question: QuizResponse["questions"][number],
+  ): QuizResponse["questions"][number] => {
+    const correct = question.options[question.correct_index];
+    if (correct === undefined) throw new Error("Quiz question has no correct option");
+    const options = [...question.options];
+    for (let index = options.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [options[index], options[swap]] = [options[swap]!, options[index]!];
+    }
+    return { ...question, options, correct_index: options.indexOf(correct) };
+  };
+
+  const shuffleQuizQuestions = (
+    questions: QuizResponse["questions"],
+  ): QuizResponse["questions"] => {
+    const shuffled = [...questions];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[swap]] = [shuffled[swap]!, shuffled[index]!];
+    }
+    return shuffled;
+  };
+
+  const findNextLesson = async (currentTopicId: string): Promise<CatalogEntry | null> => {
+    const currentIndex = catalog.topics.findIndex((topic) => topic.id === currentTopicId);
+    for (const entry of catalog.topics.slice(currentIndex + 1)) {
+      if (!topicIsReady(entry)) continue;
+      try {
+        const topic = await loadTopic(entry);
+        const audioUrl = new URL(topic.audio, window.location.href);
+        if (audioUrl.pathname.toLowerCase().endsWith("/silence.wav")) continue;
+        const response = await fetch(audioUrl, { method: "HEAD" });
+        if (!response.ok || !response.headers.get("content-type")?.startsWith("audio/")) continue;
+        const contentLength = Number(response.headers.get("content-length"));
+        if (Number.isFinite(contentLength) && contentLength <= 44) continue;
+        return entry;
+      } catch (error) {
+        console.warn(`Could not verify audio for "${entry.id}": ${String(error)}`);
+      }
+    }
+    return null;
   };
 
   const renderQuizQuestion = (): void => {
@@ -187,15 +300,51 @@ async function start(): Promise<void> {
     quizFeedback.textContent = "";
     quizNext.hidden = true;
     quizReplay.hidden = true;
+    quizNextLesson.hidden = true;
     if (quizIndex >= activeQuiz.questions.length) {
       quizProgress.textContent = "";
       quizQuestion.textContent = "Lesson complete";
       quizResult.textContent = `Score: ${quizScore} / ${activeQuiz.questions.length}`;
+      quizReview.replaceChildren();
+      missedQuestions.forEach((missed) => {
+        const row = document.createElement("div");
+        row.className = "quiz-review-item";
+        const label = document.createElement("p");
+        label.textContent = missed.question;
+        const rewatch = document.createElement("button");
+        rewatch.type = "button";
+        rewatch.className = "quiz-action quiz-secondary";
+        rewatch.textContent = "Rewatch this part";
+        rewatch.addEventListener("click", () => {
+          quizScreen.hidden = true;
+          playerSection.hidden = false;
+          const started = missed.seek === undefined
+            ? player?.playScene(missed.scene ?? "sum_node")
+            : player?.playAt(missed.seek);
+          if (!started) {
+            quizScreen.hidden = false;
+            playerSection.hidden = true;
+            quizResult.textContent = "This scene is unavailable for rewatch.";
+          }
+        });
+        row.append(label, rewatch);
+        quizReview.append(row);
+      });
+      quizNextLesson.hidden = false;
+      quizNextLesson.disabled = true;
+      quizNextLesson.textContent = "Next lesson";
+      void findNextLesson(activeQuiz.topic_id).then((entry) => {
+        nextLesson = entry;
+        quizNextLesson.textContent = entry ? "Next lesson" : "More lessons coming soon";
+        quizNextLesson.disabled = !entry;
+      });
       quizReplay.hidden = false;
       return;
     }
     const current = activeQuiz.questions[quizIndex];
     if (!current) return;
+    quizSource.textContent = current.source ?? "curated";
+    quizReview.replaceChildren();
     quizProgress.textContent = `Question ${quizIndex + 1} of ${quiz.questions.length}`;
     quizQuestion.textContent = current.question;
     quizResult.textContent = "";
@@ -208,6 +357,7 @@ async function start(): Promise<void> {
         questionAnswered = true;
         const correct = index === current.correct_index;
         if (correct) quizScore += 1;
+        else missedQuestions.push(current);
         quizFeedback.textContent = `${correct ? "Correct." : "Not quite."} ${current.explanation}`;
         quizOptions.querySelectorAll("button").forEach((choice) => {
           choice.disabled = true;
@@ -223,6 +373,11 @@ async function start(): Promise<void> {
     quizIndex += 1;
     renderQuizQuestion();
   });
+  quizNextLesson.addEventListener("click", () => {
+    if (!nextLesson) return;
+    topicPicker.value = nextLesson.id;
+    void chooseTopic(nextLesson.id);
+  });
   quizReplay.addEventListener("click", () => {
     quizScreen.hidden = true;
     playerSection.hidden = false;
@@ -232,32 +387,54 @@ async function start(): Promise<void> {
   const showQuiz = async (topicId: string): Promise<void> => {
     playerSection.hidden = true;
     quizScreen.hidden = false;
-    quizSource.textContent = "Loading quiz…";
+    quizSource.textContent = "Preparing quiz…";
     quizProgress.textContent = "";
     quizQuestion.textContent = "";
     quizOptions.replaceChildren();
     quizFeedback.textContent = "";
     quizResult.textContent = "";
+    quizReview.replaceChildren();
     quizNext.hidden = true;
+    quizNextLesson.hidden = true;
     quizReplay.hidden = true;
+    nextLesson = null;
 
-    try {
-      const response = await fetch("/api/quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic_id: topicId }),
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!response.ok) throw new Error(`Quiz request failed (${response.status})`);
-      const generated: unknown = await response.json();
-      if (!isQuizResponse(generated) || generated.topic_id !== topicId) {
-        throw new Error("Quiz response did not match the expected format");
+    const excluded = topicId === "activation_functions" ? [] : previousQuestionIds(topicId);
+    const prefetched = prefetchedQuiz?.topicId === topicId ? prefetchedQuiz.response : null;
+    const apiSource = prefetched && prefetched.model_used !== "fallback" && prefetched.model_used !== "curated"
+      ? "AI-generated" as const
+      : "curated" as const;
+    const generatedQuestions = topicId === "perceptron"
+      ? generateQuestions(Math.random, 3, excluded)
+      : [];
+    const selected: QuizResponse["questions"] = generatedQuestions.map((question) => ({
+      ...question,
+      source: "generated by code",
+    }));
+    const selectedIds = new Set([...excluded, ...selected.map((question) => question.id ?? "")]);
+    const addFreshQuestions = (
+      questions: QuizResponse["questions"],
+      source: "AI-generated" | "curated",
+      limit: number,
+    ): void => {
+      for (const question of questions) {
+        const id = questionId(question);
+        if (selected.length >= 5 || selected.filter((item) => item.source === source).length >= limit) break;
+        if (selectedIds.has(id)) continue;
+        selectedIds.add(id);
+        selected.push({
+          ...question,
+          id,
+          source,
+          scene: question.scene ?? sceneForQuestion(question.question),
+        });
       }
-      quiz = generated;
-      quizSource.textContent = generated.model_used === "fallback" || generated.model_used === "curated"
-        ? "Curated quiz"
-        : "AI-generated quiz";
-    } catch {
+    };
+    if (prefetched && topicId !== "activation_functions") {
+      addFreshQuestions(prefetched.questions, apiSource, topicId === "perceptron" ? 2 : 5);
+    }
+
+    if (selected.length < 5) {
       try {
         const response = await fetch(`/quizzes/${encodeURIComponent(topicId)}.json`);
         if (!response.ok) throw new Error(`Curated quiz unavailable (${response.status})`);
@@ -265,18 +442,46 @@ async function start(): Promise<void> {
         if (!isQuizResponse(curated) || curated.topic_id !== topicId) {
           throw new Error("Curated quiz has an invalid format");
         }
-        quiz = curated;
-        quizSource.textContent = "Curated quiz";
+        const questions = topicId === "activation_functions"
+          ? shuffleQuizQuestions(curated.questions).slice(0, 5)
+          : curated.questions;
+        addFreshQuestions(questions, "curated", 5);
       } catch (error) {
-        quiz = null;
-        quizSource.textContent = "Quiz unavailable";
-        quizResult.textContent = error instanceof Error ? error.message : String(error);
-        quizReplay.hidden = false;
-        return;
+        console.warn(`Could not load curated quiz for "${topicId}": ${String(error)}`);
       }
     }
+    if (selected.length < 5 && topicId === "perceptron") {
+      const fillers = generateQuestions(Math.random, 5 - selected.length, [...selectedIds]);
+      selected.push(...fillers.map((question) => ({
+        ...question,
+        source: "generated by code" as const,
+      })));
+    }
+    if (selected.length < 5) {
+      quiz = null;
+      quizSource.textContent = "Quiz unavailable";
+      quizResult.textContent = "Could not assemble five unused questions for this lesson.";
+      quizReplay.hidden = false;
+      return;
+    }
+    const questions = selected.slice(0, 5).map(shuffleQuestionOptions);
+    try {
+      localStorage.setItem(
+        `quiz-question-ids:${topicId}`,
+        JSON.stringify(questions.map((question) => question.id).filter((id): id is string => Boolean(id))),
+      );
+    } catch (error) {
+      console.warn(`Could not save previous quiz ids: ${String(error)}`);
+    }
+    quiz = {
+      topic_id: topicId,
+      questions,
+      model_used: "mixed",
+      repairs_used: 0,
+    };
     quizIndex = 0;
     quizScore = 0;
+    missedQuestions = [];
     renderQuizQuestion();
   };
 
@@ -291,7 +496,13 @@ async function start(): Promise<void> {
     try {
       const topic = await loadTopic(entry);
       player?.destroy();
-      player = new Player(resolvePlayerElements(), topic, initialTime, () => void showQuiz(entry.id));
+      player = new Player(
+        resolvePlayerElements(),
+        topic,
+        initialTime,
+        () => void showQuiz(entry.id),
+        () => startQuizPrefetch(entry.id),
+      );
       topicStatus.textContent = `${topic.field} · ${topic.title}`;
     } catch (error) {
       topicStatus.textContent = `Could not open topic: ${String(error)}`;
@@ -334,7 +545,13 @@ async function start(): Promise<void> {
         pauses: generated.pauses,
       };
       player?.destroy();
-      player = new Player(resolvePlayerElements(), topic, 0, () => void showQuiz(entry.id));
+      player = new Player(
+        resolvePlayerElements(),
+        topic,
+        0,
+        () => void showQuiz(entry.id),
+        () => startQuizPrefetch(entry.id),
+      );
       topicStatus.textContent = `${topic.field} · ${topic.title}`;
       songMeta.textContent = `Generated by ${generated.model_used} after ${generated.repairs_used} repairs`;
       songMeta.hidden = false;
@@ -344,7 +561,13 @@ async function start(): Promise<void> {
       try {
         const fallbackTopic = await loadTopic(entry);
         player?.destroy();
-        player = new Player(resolvePlayerElements(), fallbackTopic, 0, () => void showQuiz(entry.id));
+        player = new Player(
+          resolvePlayerElements(),
+          fallbackTopic,
+          0,
+          () => void showQuiz(entry.id),
+          () => startQuizPrefetch(entry.id),
+        );
         songMeta.textContent = "Using the local topic fallback";
         songMeta.hidden = false;
       } catch (fallbackError) {

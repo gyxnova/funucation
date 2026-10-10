@@ -44,6 +44,7 @@ export class Player {
   private playing = false;
   private startRequested = false;
   private endNotified = false;
+  private firstPlayNotified = false;
   private startGeneration = 0;
   private loopScene = false;
   private activePause: PausePoint | null = null;
@@ -60,6 +61,7 @@ export class Player {
 
   replay(): void {
     this.endNotified = false;
+    this.firstPlayNotified = false;
     this.seekTo(0);
     void this.togglePlayback();
   }
@@ -69,6 +71,7 @@ export class Player {
     private readonly topic: Topic,
     initialTime = 0,
     private readonly onEnded?: () => void,
+    private readonly onFirstPlay?: () => void,
   ) {
     this.engine = new Engine(elements.canvas, topic);
     const forceMute = new URLSearchParams(window.location.search).get("mute") === "1";
@@ -176,6 +179,10 @@ export class Player {
       return;
     }
     if (this.currentTime >= this.endTime) this.seekTo(0);
+    if (!this.firstPlayNotified) {
+      this.firstPlayNotified = true;
+      this.onFirstPlay?.();
+    }
     const generation = ++this.startGeneration;
     this.startRequested = true;
     this.elements.playButton.textContent = "Starting…";
@@ -275,6 +282,23 @@ export class Player {
       ? entries.find((entry) => entry.start > this.currentTime + 0.05)
       : [...entries].reverse().find((entry) => entry.start < this.currentTime - 0.05);
     if (target) this.seekTo(target.start);
+  }
+
+  playScene(template: string): boolean {
+    const target = this.engine.entries.find((entry) => entry.template === template);
+    if (!target) return false;
+    this.endNotified = false;
+    this.seekTo(target.start);
+    void this.togglePlayback();
+    return true;
+  }
+
+  playAt(time: number): boolean {
+    if (!Number.isFinite(time) || time < 0 || time > this.endTime) return false;
+    this.endNotified = false;
+    this.seekTo(time);
+    void this.togglePlayback();
+    return true;
   }
 
   private checkPausePoint(time: number): void {

@@ -46,7 +46,7 @@
           <button id="play-toggle" class="play-button" type="button">Play</button>
           <button id="next-scene" type="button" aria-label="Next scene">]</button>
           <button id="loop-toggle" type="button" aria-pressed="false">Loop scene (L)</button>
-          <button id="voice-toggle" type="button" aria-pressed="true">Voice on</button>
+          <button id="voice-toggle" type="button" aria-pressed="false">Voice off</button>
           <label class="volume-control" for="volume">
             Volume
             <input id="volume" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Audio volume" />
@@ -64,8 +64,10 @@
         <div id="quiz-options" class="quiz-options"></div>
         <p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p>
         <p id="quiz-result" class="quiz-result" aria-live="polite"></p>
+        <div id="quiz-review" class="quiz-review"></div>
         <button id="quiz-next" class="quiz-action" type="button" hidden>Next</button>
-        <button id="quiz-replay" class="quiz-action" type="button" hidden>Replay</button>
+        <button id="quiz-next-lesson" class="quiz-action" type="button" hidden>Next lesson</button>
+        <button id="quiz-replay" class="quiz-action quiz-secondary" type="button" hidden>Replay</button>
       </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
