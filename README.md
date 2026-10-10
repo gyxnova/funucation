@@ -4,8 +4,8 @@
 
 ForgeHacks Online 2026 · Track: AI + Education · Solo entry
 
-- Demo video: `<https://youtu.be/N3TA0bybbkE>`
-- Try it: `<https://funucation-seven.vercel.app/>`
+- Demo video: <https://youtu.be/N3TA0bybbkE>
+- Try it: <https://funucation-seven.vercel.app/>
 - Code: this repository
 
 ## Why
